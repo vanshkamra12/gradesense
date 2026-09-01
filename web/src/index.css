@@ -625,3 +625,37 @@ body {
   border-color: var(--amber);
   color: var(--amber);
 }
+
+/* --- which provider produced this result --- */
+
+.provenance {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.provenance-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.provenance-live {
+  color: var(--green);
+  background: rgb(28 107 60 / 6%);
+  border-color: rgb(28 107 60 / 35%);
+}
+
+.provenance-mock {
+  color: var(--amber);
+  background: rgb(168 100 0 / 8%);
+  border-color: rgb(168 100 0 / 35%);
+}

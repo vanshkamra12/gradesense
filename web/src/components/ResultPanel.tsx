@@ -24,6 +24,7 @@ export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion, on
   return (
     <section className="panel">
       <Score result={result} />
+      <Provenance stored={stored} />
 
       {result.overallNotes && <p className="notes">{result.overallNotes}</p>}
 
@@ -50,6 +51,37 @@ export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion, on
         ))}
       </ol>
     </section>
+  );
+}
+
+/**
+ * Which provider produced this result, stated on the result itself.
+ *
+ * A mock run and a real one are indistinguishable from the marks alone, and the
+ * difference matters: a mock result is fixed output that proves the pipeline
+ * works and says nothing about grading quality. Anyone reading a score needs to
+ * know which of the two they are looking at without checking a config file.
+ */
+function Provenance({ stored }: { stored: StoredResult }) {
+  const [kind, model] = stored.provider.split(/:(.*)/);
+  const isMock = kind === "mock";
+
+  return (
+    <p className={`provenance ${isMock ? "provenance-mock" : "provenance-live"}`}>
+      <span className="provenance-dot" aria-hidden="true" />
+      {isMock ? (
+        <>
+          <strong>Mock provider</strong> ({model}) — fixed output, no model was
+          called. These marks do not reflect grading quality.
+        </>
+      ) : (
+        <>
+          Graded by <strong>{model ?? kind}</strong>
+          {stored.providerCalled ? "" : " — answered without a model call"}
+          {stored.repaired ? " · output repaired on retry" : ""}
+        </>
+      )}
+    </p>
   );
 }
 
