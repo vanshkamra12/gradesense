@@ -623,11 +623,77 @@ three lines produces three boxes but only one tag, on the first.
 
 ### Nothing is hidden
 
-Findings that could not be placed are listed in the panel under a heading that
-says so, with the count, rather than being dropped. This includes the case where
-the model quoted something that is not in the answer: enforcement removes the
-quote, and the annotation is kept with no rectangle so the finding still
-appears in that list. A finding that exists but could not be positioned is
-exactly what a teacher needs telling about, and it would otherwise vanish
-silently. Figure-anchored annotations get their own list, labelled as a best
-guess to confirm.
+**A finding that exists but could not be positioned must never be dropped.**
+Silently discarding it would be the worst failure in this system: worse than a
+wrong mark, because a wrong mark is visible and arguable, while a finding that
+never appears cannot be questioned at all. The teacher would be looking at a
+clean page and a shorter list with no way to know that either was incomplete,
+and the system would look most confident exactly where it had failed.
+
+So findings that could not be placed are listed in the panel under a heading
+that says so, with a count. That includes the case where the model quoted
+something that is not in the answer: enforcement strips the quote, and the
+annotation is kept with no rectangle so the finding still appears in the list
+and can be placed by hand. An early version returned nothing at all for those,
+and on the handwritten fixture — where every quote is unverifiable — it produced
+a blank page beside an empty sidebar that looked like a clean pass.
+
+Figure-anchored annotations get their own list, labelled as a best guess to
+confirm.
+
+## Annotation editing
+
+A teacher can move, resize, recolour, re-comment, delete and draw annotations,
+and none of it can re-grade the paper. That is arranged structurally rather than
+by care.
+
+### Why it cannot re-grade
+
+`routes/annotations.ts` reaches exactly three modules at runtime:
+
+    routes/annotations.ts
+      db.ts
+        config.ts
+
+The grading pipeline is not in that graph, so there is no call path to audit —
+there is nothing to call. For comparison, the grade route reaches fourteen
+modules including `grade/pipeline.ts`, `grade/provider.ts` and `pdf/render.ts`.
+
+`tests/isolation.test.ts` walks that graph from the source, skipping type-only
+imports because the compiler erases them, and asserts no grading module is
+reachable from the annotation routes or from `db.ts`. It also asserts the whole
+pipeline *is* reachable from the grade route, so a walker that silently found
+nothing would fail rather than pass everything.
+
+Beneath that, `db.ts` exposes annotation CRUD functions that touch only the
+`annotations` table, which has no foreign key to `criterion_results`. So the
+guarantee holds at three levels: the schema has no link, the data layer has no
+function that writes both, and the route has no import that reaches grading.
+
+A second test performs every mutation the UI can perform — create, move, resize,
+recolour, change kind, edit comment, clear a rect, place an unplaced finding,
+delete — against a run that has adjustments and a review flag, then asserts
+`JSON.stringify(result)` is identical before and after. Serialising the whole
+result means a field added later is covered automatically, and the test also
+asserts the annotations *did* change, so it cannot pass by doing nothing.
+
+### Placing what could not be placed
+
+The unplaced list has a **place** button per finding. Pressing it arms the draw
+tool bound to that annotation, and the box the teacher draws becomes its
+position through the same PATCH a drag uses. This is what makes the unplaced
+list actionable rather than merely honest: the system says what it could not
+position, and the teacher positions it.
+
+Any box a teacher moves or draws becomes `anchor: "manual"`, and a box they draw
+from scratch is `createdBy: "user"`, so the record distinguishes what the system
+proposed from what a person decided.
+
+### Interaction
+
+Pointer gestures are tracked on `window` rather than the element, so a fast drag
+that leaves the box still finishes correctly. Nothing is sent while the pointer
+moves — a local draft rect is drawn, and one request is sent on release. Escape
+cancels drawing and clears the selection; Delete removes the selected
+annotation, except while the caret is in the comment field, where both keys mean
+what they normally mean.

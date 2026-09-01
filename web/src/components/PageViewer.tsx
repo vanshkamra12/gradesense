@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as pdfjs from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import type { Annotation, PageGeometry } from "../lib/api";
+import type { Annotation, PageGeometry, Rect } from "../lib/api";
 import { AnnotationLayer } from "./AnnotationLayer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
@@ -11,7 +11,12 @@ type Props = {
   pages: PageGeometry[];
   annotations: Annotation[];
   selectedCriterionId: string | null;
+  selectedAnnotationId: string | null;
+  drawing: boolean;
   onSelectCriterion: (criterionId: string | null) => void;
+  onSelectAnnotation: (annotationId: string | null) => void;
+  onMoveOrResize: (annotationId: string, rect: Rect) => void;
+  onDraw: (page: number, rect: Rect) => void;
 };
 
 export function PageViewer({
@@ -19,7 +24,12 @@ export function PageViewer({
   pages,
   annotations,
   selectedCriterionId,
+  selectedAnnotationId,
+  drawing,
   onSelectCriterion,
+  onSelectAnnotation,
+  onMoveOrResize,
+  onDraw,
 }: Props) {
   const [document, setDocument] = useState<pdfjs.PDFDocumentProxy | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +65,12 @@ export function PageViewer({
           geometry={geometry}
           annotations={annotations.filter((a) => a.page === geometry.page && a.rect !== null)}
           selectedCriterionId={selectedCriterionId}
+          selectedAnnotationId={selectedAnnotationId}
+          drawing={drawing}
           onSelectCriterion={onSelectCriterion}
+          onSelectAnnotation={onSelectAnnotation}
+          onMoveOrResize={onMoveOrResize}
+          onDraw={(rect) => onDraw(geometry.page, rect)}
         />
       ))}
     </div>
@@ -67,7 +82,12 @@ type PageProps = {
   geometry: PageGeometry;
   annotations: Annotation[];
   selectedCriterionId: string | null;
+  selectedAnnotationId: string | null;
+  drawing: boolean;
   onSelectCriterion: (criterionId: string | null) => void;
+  onSelectAnnotation: (annotationId: string | null) => void;
+  onMoveOrResize: (annotationId: string, rect: Rect) => void;
+  onDraw: (rect: Rect) => void;
 };
 
 function Page({
@@ -75,7 +95,12 @@ function Page({
   geometry,
   annotations,
   selectedCriterionId,
+  selectedAnnotationId,
+  drawing,
   onSelectCriterion,
+  onSelectAnnotation,
+  onMoveOrResize,
+  onDraw,
 }: PageProps) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -138,7 +163,12 @@ function Page({
           pageHeight={geometry.height}
           scale={scale}
           selectedCriterionId={selectedCriterionId}
+          selectedAnnotationId={selectedAnnotationId}
+          drawing={drawing}
           onSelectCriterion={onSelectCriterion}
+          onSelectAnnotation={onSelectAnnotation}
+          onMoveOrResize={onMoveOrResize}
+          onDraw={onDraw}
         />
       </div>
       <figcaption className="muted">

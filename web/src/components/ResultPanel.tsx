@@ -5,6 +5,7 @@ type Props = {
   stored: StoredResult;
   selectedCriterionId: string | null;
   onSelectCriterion: (criterionId: string | null) => void;
+  onPlace: (annotation: Annotation) => void;
 };
 
 const FINDING_COLOUR: Record<Criterion["findingType"], string> = {
@@ -14,7 +15,7 @@ const FINDING_COLOUR: Record<Criterion["findingType"], string> = {
   missing: "amber",
 };
 
-export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion }: Props) {
+export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion, onPlace }: Props) {
   const { result, annotations } = stored;
 
   const unplaced = annotations.filter((a) => a.unplaced || a.rect === null);
@@ -33,6 +34,7 @@ export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion }: 
           unplaced={unplaced}
           needsPlacement={needsPlacement}
           onSelectCriterion={onSelectCriterion}
+          onPlace={onPlace}
         />
       )}
 
@@ -104,10 +106,12 @@ function Placement({
   unplaced,
   needsPlacement,
   onSelectCriterion,
+  onPlace,
 }: {
   unplaced: Annotation[];
   needsPlacement: Annotation[];
   onSelectCriterion: (id: string | null) => void;
+  onPlace: (annotation: Annotation) => void;
 }) {
   return (
     <section className="placement">
@@ -125,6 +129,10 @@ function Placement({
                   {annotation.criterionId ?? "note"}
                 </button>
                 <span>{annotation.comment}</span>
+                {/* Closes the loop: the teacher can position what we could not. */}
+                <button type="button" className="place" onClick={() => onPlace(annotation)}>
+                  place
+                </button>
               </li>
             ))}
           </ul>
@@ -175,10 +183,16 @@ function CriterionCard({
     const panel = element?.closest<HTMLElement>(".sidebar");
     if (!element || !panel) return;
 
-    // Assigned directly rather than scrolled smoothly. A smooth scroll here is
-    // animated over several frames, and the canvas repainting beside it
-    // cancels the animation partway — measured landing 22px down a 1299px
-    // scroll. An instant jump always arrives.
+    // Assigned directly. Do not "clean this up" into scrollIntoView or a smooth
+    // scroll — both were tried and both are wrong here, measured in Chrome:
+    //
+    //   scrollIntoView            scrolls every scrollable ancestor, so
+    //                             selecting a criterion dragged the page viewer
+    //                             around underneath the teacher.
+    //   scrollTo(behavior:smooth) animates over several frames, and the page
+    //                             canvas repainting beside it cancels the
+    //                             animation partway: a 1299px scroll landed at
+    //                             22px. An instant assignment always arrives.
     const offset = element.getBoundingClientRect().top - panel.getBoundingClientRect().top;
     panel.scrollTop = panel.scrollTop + offset - 12;
   }, [selected]);

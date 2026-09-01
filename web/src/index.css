@@ -466,3 +466,158 @@ body {
 .history .muted {
   font-size: 11.5px;
 }
+
+/* --- annotation editing --- */
+
+.annotation-layer.is-drawing {
+  cursor: crosshair;
+}
+
+/* While drawing, existing boxes must not swallow the pointer. */
+.annotation-layer.is-drawing .annotation {
+  pointer-events: none;
+}
+
+.annotation {
+  cursor: grab;
+}
+
+.annotation.is-user {
+  border-style: solid;
+}
+
+.annotation-draft {
+  border: 2px dashed var(--ink);
+  background: rgb(0 0 0 / 6%);
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: var(--paper);
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+}
+
+.handle-nw {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+.handle-ne {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+.handle-sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+.handle-se {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+.draw-toggle {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.draw-toggle.is-on {
+  background: #fff3bf;
+  border-color: var(--amber);
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.editor {
+  border-color: var(--amber);
+  border-left-width: 4px;
+}
+
+.editor-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.editor-head .muted {
+  font-size: 11.5px;
+}
+
+.editor-head .link {
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--muted);
+  font: inherit;
+  text-decoration: underline;
+}
+
+.editor-comment {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--line);
+  font: inherit;
+  resize: vertical;
+}
+
+.editor-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.editor-row button {
+  padding: 3px 8px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.editor-row button[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.editor-row .danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.swatch.is-on {
+  font-weight: 700;
+}
+
+.swatch-red {
+  color: var(--red);
+}
+.swatch-amber {
+  color: var(--amber);
+}
+.swatch-green {
+  color: var(--green);
+}
+
+.placement-list .place {
+  flex: none;
+  margin-left: auto;
+  border-color: var(--amber);
+  color: var(--amber);
+}

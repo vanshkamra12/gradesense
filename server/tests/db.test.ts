@@ -225,3 +225,90 @@ describe("a reopened result stays fully editable, and editing never re-grades", 
     expect(updateAnnotation(randomUUID(), { comment: "nope" })).toBeNull();
   });
 });
+
+/**
+ * The stage 12 requirement, stated as one test: perform every kind of
+ * annotation mutation the UI can perform, and assert the grading result is
+ * byte-identical afterwards. Serialising both sides means a field added to the
+ * result later is covered by this test automatically.
+ */
+describe("every annotation mutation leaves the grading result byte-identical", () => {
+  it("survives create, move, resize, recolour, recomment, unplace and delete", async () => {
+    const { id } = await persistRun("overmax"); // a run with adjustments and a review flag
+
+    const before = getResult(id)!;
+    const beforeJson = JSON.stringify(before.result);
+    expect(before.result.adjustments.length).toBeGreaterThan(0);
+    expect(before.result.needsHumanReview).toBe(true);
+
+    const placed = before.annotations.find((a) => a.rect !== null)!;
+    const unplacedOne = before.annotations.find((a) => a.rect === null);
+
+    // 1. Add one, as drawing a box on the page does.
+    const added = createAnnotation({
+      id: randomUUID(),
+      resultId: id,
+      criterionId: null,
+      page: 1,
+      rect: { x: 40, y: 40, w: 120, h: 24 },
+      kind: "box",
+      color: "red",
+      comment: "Drawn by the teacher.",
+      anchor: "manual",
+      unplaced: false,
+      needsPlacement: false,
+      createdBy: "user",
+      updatedAt: new Date().toISOString(),
+    });
+
+    // 2. Move it. 3. Resize it. 4. Recolour. 5. Change kind. 6. Edit the comment.
+    updateAnnotation(added.id, { rect: { x: 90, y: 300, w: 120, h: 24 } });
+    updateAnnotation(added.id, { rect: { x: 90, y: 300, w: 260, h: 40 } });
+    updateAnnotation(added.id, { color: "green" });
+    updateAnnotation(added.id, { kind: "underline" });
+    updateAnnotation(added.id, { comment: "Edited twice." });
+
+    // 7. Move a system annotation. 8. Clear its rect, making it unplaced again.
+    updateAnnotation(placed.id, { rect: { x: 10, y: 10, w: 50, h: 12 } });
+    updateAnnotation(placed.id, { rect: null });
+
+    // 9. Give a position to a finding that had none.
+    if (unplacedOne) {
+      const positioned = updateAnnotation(unplacedOne.id, {
+        page: 2,
+        rect: { x: 70, y: 500, w: 200, h: 14 },
+      })!;
+      expect(positioned.unplaced).toBe(false);
+      expect(positioned.anchor).toBe("manual");
+    }
+
+    // 10. Delete one.
+    expect(deleteAnnotation(added.id)).toBe(true);
+
+    const after = getResult(id)!;
+
+    expect(JSON.stringify(after.result)).toBe(beforeJson);
+    expect(after.result.criteria).toEqual(before.result.criteria);
+    expect(after.result.total).toBe(before.result.total);
+    expect(after.result.maxTotal).toBe(before.result.maxTotal);
+    expect(after.result.confidence).toBe(before.result.confidence);
+    expect(after.result.needsHumanReview).toBe(before.result.needsHumanReview);
+    expect(after.result.reviewReasons).toEqual(before.result.reviewReasons);
+    expect(after.result.adjustments).toEqual(before.result.adjustments);
+
+    // The annotations did change, or the test above would prove nothing.
+    expect(JSON.stringify(after.annotations)).not.toBe(JSON.stringify(before.annotations));
+    expect(after.annotations.find((a) => a.id === placed.id)!.rect).toBeNull();
+  }, 30_000);
+
+  it("leaves the stored document and its geometry untouched by editing", async () => {
+    const { id } = await persistRun();
+    const before = getResult(id)!;
+
+    const target = before.annotations.find((a) => a.rect !== null)!;
+    updateAnnotation(target.id, { rect: { x: 1, y: 2, w: 3, h: 4 }, comment: "moved" });
+
+    const after = getResult(id)!;
+    expect(JSON.stringify(after.document)).toBe(JSON.stringify(before.document));
+  }, 30_000);
+});

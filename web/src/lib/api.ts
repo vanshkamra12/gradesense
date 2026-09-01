@@ -97,3 +97,54 @@ export async function fetchResult(id: string): Promise<StoredResult> {
 }
 
 export const pdfUrl = (id: string) => `/api/results/${id}/pdf`;
+
+// --- annotation mutations ---------------------------------------------------
+// These are the only writes the editor makes. They address the annotations
+// routes and nothing else; no client path reaches the grading endpoint.
+
+export type NewAnnotation = {
+  criterionId?: string | null;
+  page: number;
+  rect: Rect | null;
+  kind?: Annotation["kind"];
+  color?: Annotation["color"];
+  comment?: string;
+};
+
+export type AnnotationPatch = Partial<
+  Pick<Annotation, "page" | "rect" | "kind" | "color" | "comment">
+>;
+
+export async function createAnnotation(
+  resultId: string,
+  annotation: NewAnnotation,
+): Promise<Annotation> {
+  return json(
+    await fetch(`/api/results/${resultId}/annotations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(annotation),
+    }),
+  );
+}
+
+export async function patchAnnotation(
+  resultId: string,
+  annotationId: string,
+  patch: AnnotationPatch,
+): Promise<Annotation> {
+  return json(
+    await fetch(`/api/results/${resultId}/annotations/${annotationId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    }),
+  );
+}
+
+export async function deleteAnnotation(resultId: string, annotationId: string): Promise<void> {
+  const response = await fetch(`/api/results/${resultId}/annotations/${annotationId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+}
