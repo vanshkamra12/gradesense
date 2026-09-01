@@ -180,36 +180,43 @@ describe("blank answer through the pipeline", () => {
   }, 30_000);
 });
 
-describe("unclear answer through the pipeline", () => {
-  let unclear: Uint8Array;
+// student_answer_F.pdf is a real handwritten page: ruled notebook paper, one
+// full-page scan, no extractable text at all. It is the case the guard exists
+// for — the system has to decline to fake confidence about handwriting rather
+// than pretend it read the page.
+describe("a real handwritten answer through the pipeline", () => {
+  const handwritten = () => fixture("student_answer_F.pdf");
 
-  beforeAll(async () => {
-    unclear = await makeUnclearPdf();
+  it("has no extractable text and a single page image", async () => {
+    const student = await extractPdf(handwritten());
+
+    expect(student.text.trim()).toBe("");
+    expect(student.pages).toHaveLength(1);
+    expect(student.pages[0]!.images).toHaveLength(1);
   }, 30_000);
 
-  it("is classified unclear: little text, but a drawing on the page", async () => {
-    const student = await extractPdf(unclear);
-    const assessment = assessAnswerSheet(student, await loadScaffolding());
+  it("is classified unclear rather than blank, because the page carries an image", async () => {
+    const assessment = assessAnswerSheet(await extractPdf(handwritten()), await loadScaffolding());
 
     expect(assessment.kind).toBe("unclear");
     expect(assessment.contributedChars).toBeLessThan(MIN_STUDENT_CHARS);
-    expect(assessment.imageCount).toBeGreaterThan(0);
+    expect(assessment.imageCount).toBe(1);
   }, 30_000);
 
-  it("is graded rather than zeroed, but capped and flagged", async () => {
-    const provider = mockProvider("valid");
-    const outcome = await gradeDocument(unclear, provider);
+  it("is graded rather than zeroed, with confidence capped and review required", async () => {
+    const outcome = await gradeDocument(handwritten(), mockProvider("valid"));
 
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
 
     expect(outcome.run.providerCalled).toBe(true);
+    expect(outcome.run.result.criteria).toHaveLength(15);
     expect(outcome.run.result.confidence).toBeLessThanOrEqual(UNCLEAR_CONFIDENCE_CEILING);
     expect(outcome.run.result.needsHumanReview).toBe(true);
   }, 30_000);
 
-  it("names the actual cause rather than giving a generic low-confidence message", async () => {
-    const outcome = await gradeDocument(unclear, mockProvider("valid"));
+  it("names the machine-readable-text cause rather than the generic threshold message", async () => {
+    const outcome = await gradeDocument(handwritten(), mockProvider("valid"));
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
 
@@ -219,5 +226,19 @@ describe("unclear answer through the pipeline", () => {
     expect(first).not.toBe(
       `Overall confidence is ${outcome.run.result.confidence}, below the ${REVIEW_CONFIDENCE_THRESHOLD} threshold for automatic acceptance.`,
     );
+  }, 30_000);
+});
+
+// Kept for the edge the real fixture does not cover: a sheet that carries the
+// pre-printed headings as extractable text and a drawing, rather than being a
+// scan of the whole page.
+describe("a synthetic part-scanned sheet", () => {
+  it("is classified unclear once the headings are discounted", async () => {
+    const student = await extractPdf(await makeUnclearPdf());
+    const assessment = assessAnswerSheet(student, await loadScaffolding());
+
+    expect(student.text).toContain("Question 1");
+    expect(assessment.kind).toBe("unclear");
+    expect(assessment.contributedChars).toBeLessThan(MIN_STUDENT_CHARS);
   }, 30_000);
 });

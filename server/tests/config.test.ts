@@ -1,3 +1,4 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { config } from "../src/config.js";
 
@@ -8,7 +9,13 @@ describe("config", () => {
   });
 
   it("keeps runtime storage outside the source tree", () => {
-    expect(config.storageDir).toMatch(/server\/storage$/);
-    expect(config.dbPath).toMatch(/server\/data\/gradesense\.sqlite$/);
+    for (const location of [config.storageDir, config.dbPath]) {
+      expect(path.isAbsolute(location)).toBe(true);
+      expect(location).not.toContain(`${path.sep}src${path.sep}`);
+    }
+  });
+
+  it("finds the fixtures directory", () => {
+    expect(config.fixturesDir).toMatch(/fixtures$/);
   });
 });

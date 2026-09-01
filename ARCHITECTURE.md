@@ -402,7 +402,16 @@ The provider is never called, which a test enforces with a provider that throws
 if it is reached.
 
 A sheet with almost no contributed text but **images present** is unclear, not
-blank: the answer is probably handwritten. It is graded normally, but overall
+blank: the answer is probably handwritten. `fixtures/student_answer_F.pdf` is
+exactly this — a real handwritten page on ruled notebook paper, scanned as one
+full-page image with zero extractable text. It is the fixture that proves the
+system declines to fake confidence about handwriting rather than pretending to
+have read the page: it is graded, but the result says plainly that almost no
+machine-readable text was found and that a human has to confirm it.
+
+It is also the case that defeats the largest-image heuristic noted above, since
+the whole page is one image — which is why a figure anchor is only ever a
+suggestion a teacher confirms. It is graded normally, but overall
 confidence is capped at 0.5 and the result is flagged for review with a reason
 naming the actual cause — how many characters were found, how many page images
 there are, and that the marking may rest on the images alone. That reason is
@@ -505,3 +514,65 @@ the largest image in the document, marked `anchor: "figure"` and
 An `unverifiable` one — where the model quoted something that is not in the
 answer and enforcement removed it — is left unplaced. Anchoring it to the figure
 would be inventing a position for a quote that was already invented once.
+
+## Persistence
+
+`db.ts` is the whole data layer: `better-sqlite3`, four tables, synchronous
+calls, no ORM.
+
+### The original upload is read-only
+
+An upload is written to `storage/originals/<sha256 of its bytes>.pdf` with mode
+`0444`, and is not rewritten if that path already exists. The same file uploaded
+twice is one stored copy and one `documents` row, with a new `results` row each
+time. Nothing in the system opens an original for writing; export produces a new
+file elsewhere. A test asserts the stored file has no write bit and that a
+second store leaves the first file's mtime untouched.
+
+### Reopening does not re-extract
+
+`documents` carries the page geometry and the extracted text and items, not just
+the file path. A reopened grading can therefore scale and draw its annotation
+overlay straight from the stored rows — no pdf.js, no re-extraction, and no
+possibility of the overlay being computed against different coordinates from the
+ones the annotations were placed in.
+
+### Annotations are deliberately not connected to the marks
+
+`annotations` has a foreign key to `results` and nothing else. `criterion_id` is
+plain text with no foreign key at all, and there is no reference from an
+annotation to a row in `criterion_results`.
+
+That is the point of the split. The requirement is that moving, editing or
+deleting an annotation never re-runs grading, and the way to guarantee it is to
+leave no path along which a write to one could reach the other. `saveGradeRun`
+is the only function that writes both, and it only ever inserts, once, when a
+run is first persisted. The CRUD functions below it touch the `annotations`
+table alone. Re-grading a document produces a new result with its own
+annotations rather than mutating an existing one's.
+
+A test reads `PRAGMA foreign_key_list(annotations)` and asserts the only table
+referenced is `results` — so the guarantee is checked against the schema itself
+rather than against our intentions about it. Another persists a run, reopens it,
+moves an annotation, reopens again, and asserts the move survived while every
+criterion, the total, the confidence and the adjustments are byte-identical.
+
+### Routes
+
+| route | does |
+|---|---|
+| `POST /api/grade` | raw PDF bytes in the body, grades, persists, returns the id |
+| `GET /api/history` | recent runs with score, confidence, review flag, annotation count |
+| `GET /api/results/:id` | a full result with its annotations and page geometry |
+| `GET/POST/PATCH/DELETE /api/results/:id/annotations` | annotation CRUD |
+
+The upload takes raw bytes with `Content-Type: application/pdf` rather than
+multipart, which avoids a file-upload dependency for a route that accepts
+exactly one file. A failed grade returns a structured error and persists
+nothing — there is no half-saved run to clean up.
+
+Patching an annotation's rect sets its anchor to `manual` and clears
+`needsPlacement`: once a teacher has moved a box, its position is theirs and the
+system should stop asking them to confirm it. Clearing the rect marks the
+annotation unplaced rather than deleting it, so a finding never silently
+disappears from the sidebar.
