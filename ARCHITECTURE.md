@@ -1,5 +1,9 @@
 # Architecture
 
+*The first section is the short explanation: what this is, the five rules and
+where each lives, how a run flows, and where to look. Everything after it is
+reference, written as each part was built.*
+
 ## What this is
 
 GradeSense marks a scanned or typed answer script against a fixed marking
@@ -115,6 +119,41 @@ Uploaded originals, rendered page images, exported PDFs and the SQLite file all
 live under `server/storage/` and `server/data/`, both gitignored. The uploaded
 PDF is stored under a content-addressed name and is never written to again;
 export always produces a new file.
+
+## The three documents
+
+A marking run has three inputs, and all three are uploadable: the question
+paper, the marking scheme, and the student's answer. Only the answer is
+required — the bundled fixtures stand in for the other two, which is what lets
+the app be demonstrated with a single file.
+
+They are sent separately rather than as one multipart request. The question
+paper and marking scheme go to `POST /api/documents`, which stores each
+content-addressed and returns an id; `POST /api/grade` then takes the student's
+bytes as its body and names the other two by id. That keeps the upload path free
+of a multipart parser for what is, at most, three files.
+
+### An uploaded marking scheme is never silently ignored
+
+If an uploaded scheme cannot be parsed, the run **fails** with
+`rubric_unreadable` and a message naming what was missing — "criteria sum to 4
+but the table totals 5", "no Marking rubric heading". It does not fall back to
+the bundled scheme.
+
+That fallback is the dangerous behaviour, not the failure. A run that quietly
+marked against 15 bundled criteria when the teacher uploaded a 14-criterion
+scheme would produce marks that look entirely plausible and are against the
+wrong rubric. Nothing downstream could detect it, and the teacher would have no
+reason to doubt the total. A visible error is recoverable; a plausible wrong
+answer is not.
+
+An uploaded question paper likewise replaces the bundled one as the source of
+scaffolding lines for the blank-answer guard, so a blank sheet is judged against
+the paper it was actually printed from.
+
+All three documents are stored with the run, and a reopened result names which
+scheme and paper it was marked against — "uploaded" or "bundled" — because a
+mark means nothing without knowing what it was measured by.
 
 ## PDF extraction
 

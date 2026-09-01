@@ -25,6 +25,9 @@ historyRouter.get("/api/results/:id", (req, res) => {
     assessment: stored.assessment,
     result: stored.result,
     annotations: stored.annotations,
+    // What this run was marked against. Null means the bundled fixture.
+    questionPaper: stored.questionPaper,
+    modelAnswer: stored.modelAnswer,
     document: {
       id: stored.document.id,
       filename: stored.document.filename,

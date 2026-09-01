@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS documents (
 CREATE TABLE IF NOT EXISTS results (
   id                 TEXT PRIMARY KEY,
   document_id        TEXT NOT NULL REFERENCES documents(id),
+  question_paper_id  TEXT REFERENCES documents(id),
+  model_answer_id    TEXT REFERENCES documents(id),
   provider           TEXT NOT NULL,
   provider_called    INTEGER NOT NULL,
   repaired           INTEGER NOT NULL,
@@ -97,9 +99,14 @@ export type StoredDocument = {
   createdAt: string;
 };
 
+/** Just enough about a supporting document to say what a run was marked against. */
+export type DocumentSummary = { id: string; filename: string; source: "uploaded" | "bundled" };
+
 export type StoredResult = {
   id: string;
   document: StoredDocument;
+  questionPaper: DocumentSummary | null;
+  modelAnswer: DocumentSummary | null;
   provider: string;
   providerCalled: boolean;
   repaired: boolean;
@@ -131,6 +138,16 @@ export function db(): Database.Database {
   database.pragma("journal_mode = WAL");
   database.pragma("foreign_keys = ON");
   database.exec(SCHEMA);
+
+  // Columns added after the first schema shipped. A database created before
+  // them is upgraded in place rather than discarded.
+  const columns = (database.pragma("table_info(results)") as { name: string }[]).map((c) => c.name);
+  for (const column of ["question_paper_id", "model_answer_id"]) {
+    if (!columns.includes(column)) {
+      database.exec(`ALTER TABLE results ADD COLUMN ${column} TEXT REFERENCES documents(id)`);
+    }
+  }
+
   return database;
 }
 
@@ -156,6 +173,15 @@ export function storeOriginal(bytes: Uint8Array): { id: string; storagePath: str
     fs.writeFileSync(storagePath, bytes, { mode: 0o444 });
   }
   return { id, storagePath };
+}
+
+/** Where a stored document's bytes live, by document id. */
+export function documentLocation(id: string): { documentPath: string; filename: string } {
+  const row = db().prepare(`SELECT storage_path, filename FROM documents WHERE id = ?`).get(id) as
+    | { storage_path: string; filename: string }
+    | undefined;
+  if (!row) throw new Error(`no such document: ${id}`);
+  return { documentPath: row.storage_path, filename: row.filename };
 }
 
 export function readOriginal(storagePath: string): Buffer {
@@ -199,12 +225,44 @@ function rowToAnnotation(row: Record<string, unknown>): Annotation {
   };
 }
 
+/** Stores a supporting document (question paper or marking scheme) and returns its id. */
+async function storeSupporting(
+  bytes: Uint8Array,
+  filename: string,
+  now: string,
+): Promise<string> {
+  const { extractPdf } = await import("./pdf/extract.js");
+  const { id, storagePath } = storeOriginal(bytes);
+  const extracted = await extractPdf(bytes);
+
+  db()
+    .prepare(
+      `INSERT OR IGNORE INTO documents
+         (id, filename, byte_size, storage_path, page_count, pages_json, text, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(id, filename, bytes.byteLength, storagePath, extracted.pages.length,
+      JSON.stringify(extracted.pages), extracted.text, now);
+
+  return id;
+}
+
+export async function saveSupportingDocument(
+  bytes: Uint8Array,
+  filename: string,
+): Promise<string> {
+  return storeSupporting(bytes, filename, new Date().toISOString());
+}
+
 export function saveGradeRun(input: {
   resultId: string;
   run: GradeRun;
   annotations: Annotation[];
   filename: string;
   bytes: Uint8Array;
+  /** Ids of the question paper and marking scheme this run was marked against. */
+  questionPaperId?: string | null;
+  modelAnswerId?: string | null;
 }): string {
   const { resultId, run, annotations, filename, bytes } = input;
   const { id: documentId, storagePath } = storeOriginal(bytes);
@@ -232,14 +290,16 @@ export function saveGradeRun(input: {
     handle
       .prepare(
         `INSERT INTO results
-           (id, document_id, provider, provider_called, repaired, assessment_json, total,
-            max_total, confidence, needs_human_review, review_reasons_json, adjustments_json,
-            overall_notes, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (id, document_id, question_paper_id, model_answer_id, provider, provider_called,
+            repaired, assessment_json, total, max_total, confidence, needs_human_review,
+            review_reasons_json, adjustments_json, overall_notes, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         resultId,
         documentId,
+        input.questionPaperId ?? null,
+        input.modelAnswerId ?? null,
         run.provider,
         run.providerCalled ? 1 : 0,
         run.repaired ? 1 : 0,
@@ -331,9 +391,21 @@ export function getResult(resultId: string): StoredResult | null {
     .prepare(`SELECT * FROM criterion_results WHERE result_id = ? ORDER BY position`)
     .all(resultId) as Record<string, unknown>[];
 
+  const summary = (id: unknown, source: "uploaded" | "bundled"): DocumentSummary | null => {
+    if (typeof id !== "string") return null;
+    const row = handle.prepare(`SELECT id, filename FROM documents WHERE id = ?`).get(id) as
+      | { id: string; filename: string }
+      | undefined;
+    return row ? { id: row.id, filename: row.filename, source } : null;
+  };
+
+  const assessment = JSON.parse(result.assessment_json as string);
+
   return {
     id: resultId,
     createdAt: result.created_at as string,
+    questionPaper: summary(result.question_paper_id, "uploaded"),
+    modelAnswer: summary(result.model_answer_id, "uploaded"),
     provider: result.provider as string,
     providerCalled: Boolean(result.provider_called),
     repaired: Boolean(result.repaired),

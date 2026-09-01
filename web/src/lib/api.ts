@@ -46,9 +46,13 @@ export type GradeResult = {
 
 export type PageGeometry = { page: number; width: number; height: number };
 
+export type DocumentSummary = { id: string; filename: string; source: "uploaded" | "bundled" };
+
 export type StoredResult = {
   id: string;
   createdAt: string;
+  questionPaper: DocumentSummary | null;
+  modelAnswer: DocumentSummary | null;
   provider: string;
   providerCalled: boolean;
   repaired: boolean;
@@ -78,12 +82,37 @@ async function json<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function gradeUpload(file: File): Promise<{ id: string }> {
+/** Uploads a question paper or marking scheme and returns its document id. */
+export async function uploadDocument(file: File): Promise<{ id: string; filename: string }> {
   return json(
-    await fetch(`/api/grade?filename=${encodeURIComponent(file.name)}`, {
+    await fetch(`/api/documents?filename=${encodeURIComponent(file.name)}`, {
       method: "POST",
       headers: { "Content-Type": "application/pdf" },
       body: file,
+    }),
+  );
+}
+
+export async function gradeUpload(
+  student: File,
+  supporting: { questionPaper?: File; modelAnswer?: File } = {},
+): Promise<{ id: string }> {
+  // The supporting documents go up first, so grading is a single call that
+  // names them by id. Whichever is omitted falls back to the bundled fixture.
+  const params = new URLSearchParams({ filename: student.name });
+
+  if (supporting.questionPaper) {
+    params.set("questionPaper", (await uploadDocument(supporting.questionPaper)).id);
+  }
+  if (supporting.modelAnswer) {
+    params.set("modelAnswer", (await uploadDocument(supporting.modelAnswer)).id);
+  }
+
+  return json(
+    await fetch(`/api/grade?${params}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/pdf" },
+      body: student,
     }),
   );
 }

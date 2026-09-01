@@ -5,16 +5,33 @@ import {
   assessAnswerSheet,
   blankResponse,
   loadScaffolding,
+  scaffoldingFromPdf,
   unclearReason,
   UNCLEAR_CONFIDENCE_CEILING,
   type SheetAssessment,
 } from "./guard.js";
 import { buildPromptParts } from "./prompt.js";
 import type { GradeProvider, PromptPart } from "./provider.js";
-import { loadRubric, type Rubric } from "./rubric.js";
+import { loadRubric, parseRubricFromPdf, RubricParseError, type Rubric } from "./rubric.js";
 import { parseModelOutput, type GradeResponse } from "./schema.js";
 
-export type GradeErrorCode = "provider_failed" | "invalid_output";
+export type GradeErrorCode =
+  | "provider_failed"
+  | "invalid_output"
+  | "rubric_unreadable"
+  | "question_paper_unreadable";
+
+/**
+ * What a run is marked against. Only the student answer is required; supplying
+ * a marking scheme or question paper replaces the bundled one for that run.
+ */
+export type GradeInputs = {
+  student: Uint8Array;
+  /** The marking scheme. Parsed per run; a parse failure fails the run. */
+  modelAnswer?: Uint8Array;
+  /** Feeds the blank guard's scaffolding strip. */
+  questionPaper?: Uint8Array;
+};
 
 export type GradeError = {
   code: GradeErrorCode;
@@ -34,6 +51,8 @@ export type GradeRun = {
   provider: string;
   /** What the blank/unclear guard decided about the sheet. */
   assessment: SheetAssessment;
+  /** Whether the marking scheme and question paper were uploaded or bundled. */
+  sources: { modelAnswer: "uploaded" | "bundled"; questionPaper: "uploaded" | "bundled" };
   /** False when the guard answered without asking the model. */
   providerCalled: boolean;
   /** True when the first response failed to parse and the retry succeeded. */
@@ -50,15 +69,57 @@ Return the same marking as one JSON object matching the schema above exactly.
 Output only the JSON object. No prose, no explanation, no markdown code fences.`;
 
 export async function gradeDocument(
-  pdfBytes: Uint8Array,
+  // A bare Uint8Array is the common case — grade this answer against the
+  // bundled scheme — so it is accepted directly rather than forcing every
+  // caller to wrap it.
+  input: Uint8Array | GradeInputs,
   provider: GradeProvider,
 ): Promise<GradeOutcome> {
-  const [rubric, scaffolding, student, pages] = await Promise.all([
-    loadRubric(),
-    loadScaffolding(),
-    extractPdf(pdfBytes),
-    renderPdfPages(pdfBytes),
-  ]);
+  const inputs: GradeInputs = input instanceof Uint8Array ? { student: input } : input;
+  const pdfBytes = inputs.student;
+
+  const sources = {
+    modelAnswer: inputs.modelAnswer ? ("uploaded" as const) : ("bundled" as const),
+    questionPaper: inputs.questionPaper ? ("uploaded" as const) : ("bundled" as const),
+  };
+
+  // An uploaded marking scheme is parsed for this run. If it cannot be read the
+  // run fails and says what was missing — falling back to the bundled scheme
+  // would mark the paper against a rubric nobody asked for.
+  let rubric: Rubric;
+  try {
+    rubric = inputs.modelAnswer ? await parseRubricFromPdf(inputs.modelAnswer) : await loadRubric();
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: "rubric_unreadable",
+        message:
+          error instanceof RubricParseError
+            ? `The uploaded marking scheme could not be read: ${error.message}`
+            : `The uploaded marking scheme could not be read: ${(error as Error).message}`,
+        attempts: [],
+      },
+    };
+  }
+
+  let scaffolding: ReadonlySet<string>;
+  try {
+    scaffolding = inputs.questionPaper
+      ? await scaffoldingFromPdf(inputs.questionPaper)
+      : await loadScaffolding();
+  } catch (error) {
+    return {
+      ok: false,
+      error: {
+        code: "question_paper_unreadable",
+        message: `The uploaded question paper could not be read: ${(error as Error).message}`,
+        attempts: [],
+      },
+    };
+  }
+
+  const [student, pages] = await Promise.all([extractPdf(pdfBytes), renderPdfPages(pdfBytes)]);
 
   const assessment = assessAnswerSheet(student, scaffolding);
   const parts = buildPromptParts(rubric, student, pages.map((page) => page.png));
@@ -74,7 +135,7 @@ export async function gradeDocument(
         response,
         result: enforce({ response, rubric, studentText: student.text, repaired: false }),
         rubric, student, pages, parts, provider: provider.name,
-        repaired: false, assessment, providerCalled: false,
+        repaired: false, assessment, providerCalled: false, sources,
       },
     };
   }
@@ -108,7 +169,7 @@ export async function gradeDocument(
         response: first.value,
         result: enforce({ response: first.value, rubric, studentText: student.text, repaired: false, caveat }),
         rubric, student, pages, parts, provider: provider.name,
-        repaired: false, assessment, providerCalled: true,
+        repaired: false, assessment, providerCalled: true, sources,
       },
     };
   }
@@ -138,7 +199,7 @@ export async function gradeDocument(
         response: second.value,
         result: enforce({ response: second.value, rubric, studentText: student.text, repaired: true, caveat }),
         rubric, student, pages, parts, provider: provider.name,
-        repaired: true, assessment, providerCalled: true,
+        repaired: true, assessment, providerCalled: true, sources,
       },
     };
   }

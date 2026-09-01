@@ -25,6 +25,7 @@ export function ResultPanel({ stored, selectedCriterionId, onSelectCriterion, on
     <section className="panel">
       <Score result={result} />
       <Provenance stored={stored} />
+      <Sources stored={stored} />
 
       {result.overallNotes && <p className="notes">{result.overallNotes}</p>}
 
@@ -82,6 +83,25 @@ function Provenance({ stored }: { stored: StoredResult }) {
         </>
       )}
     </p>
+  );
+}
+
+/** Which marking scheme and question paper this run was marked against. */
+function Sources({ stored }: { stored: StoredResult }) {
+  const name = (d: StoredResult["modelAnswer"], fallback: string) =>
+    d ? `${d.filename} (uploaded)` : `${fallback} (bundled)`;
+
+  return (
+    <dl className="sources">
+      <div>
+        <dt>Marking scheme</dt>
+        <dd>{name(stored.modelAnswer, "model_answer.pdf")}</dd>
+      </div>
+      <div>
+        <dt>Question paper</dt>
+        <dd>{name(stored.questionPaper, "question_paper.pdf")}</dd>
+      </div>
+    </dl>
   );
 }
 

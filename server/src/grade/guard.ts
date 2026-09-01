@@ -98,19 +98,27 @@ export function blankResponse(rubric: Rubric): GradeResponse {
   };
 }
 
-// The question paper is fixed input, so its lines are read once per process.
-let scaffolding: Promise<ReadonlySet<string>> | null = null;
+/** The set of lines a question paper puts on the page before the student writes. */
+export function scaffoldingFrom(paper: ExtractedDocument): ReadonlySet<string> {
+  return new Set(
+    paper.pages
+      .flatMap((page) => page.text.split("\n"))
+      .map(normaliseLine)
+      .filter((line) => line !== ""),
+  );
+}
+
+export async function scaffoldingFromPdf(data: Uint8Array): Promise<ReadonlySet<string>> {
+  return scaffoldingFrom(await extractPdf(data));
+}
+
+// The bundled question paper is fixed input, so it is read once per process.
+// An uploaded one is parsed per run instead.
+let bundled: Promise<ReadonlySet<string>> | null = null;
 
 export function loadScaffolding(): Promise<ReadonlySet<string>> {
-  scaffolding ??= fs
+  bundled ??= fs
     .readFile(path.join(config.fixturesDir, "question_paper.pdf"))
-    .then(async (buf) => {
-      const paper = await extractPdf(new Uint8Array(buf));
-      const lines = paper.pages
-        .flatMap((page) => page.text.split("\n"))
-        .map(normaliseLine)
-        .filter((line) => line !== "");
-      return new Set(lines);
-    });
-  return scaffolding;
+    .then((buf) => scaffoldingFromPdf(new Uint8Array(buf)));
+  return bundled;
 }

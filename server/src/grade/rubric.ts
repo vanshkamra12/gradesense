@@ -42,7 +42,8 @@ const GUIDANCE_HEADING = /^Important grading guidance$/i;
 /** A rubric row ends with its mark: "...across the bulb 1". */
 const CRITERION_ROW = /^(.*\S)\s+(\d)$/;
 
-class RubricParseError extends Error {}
+/** Thrown when the marking scheme cannot be read. The message names what was missing. */
+export class RubricParseError extends Error {}
 
 type Section = { id: string; subject: string; lines: string[] };
 
