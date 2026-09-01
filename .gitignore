@@ -1,0 +1,16 @@
+node_modules/
+dist/
+
+.env
+.env.local
+
+# Uploaded originals, rendered pages, exported PDFs and the SQLite file are all
+# runtime artefacts, not source.
+server/storage/
+server/data/
+*.sqlite
+*.sqlite-journal
+
+test-output.txt
+.DS_Store
+*.log
