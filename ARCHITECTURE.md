@@ -554,6 +554,31 @@ Nothing plausible needed a threshold below 0.9, let alone 0.8. Raising it to
 0.95 would begin rejecting genuine respelled quotes; lowering it to 0.5 would
 begin accepting text from the wrong page.
 
+### The fuzzy path is less exercised than the tests suggest
+
+Script E is a whole answer corrupted the way a scanner corrupts one — `arnmeter`
+for `ammeter`, `serles` for `series`, `equi1ibrium`, `Ohm's 1aw, V = lR`. It was
+built to be the hardest case for this file, and on a real run all fifteen quotes
+matched **exactly**, not fuzzily.
+
+The reason is that the model quoted the corrupted source faithfully, character
+for character, as the prompt asks. The quote and the page then carry identical
+corruption, so the exact pass succeeds and the fuzzy matcher never runs. A
+damaged script is not by itself a hard case for locating: it is a hard case for
+*reading*, which is the model's problem, not this file's.
+
+What actually needs the fuzzy matcher is the opposite — a model that silently
+tidies the spelling, returning "ammeter" where the page says "arnmeter". That is
+disobedience to the prompt rather than damage in the source, and it is not what
+the OCR fixture produces.
+
+So the fuzzy path is well covered by the unit tests, which construct that case
+deliberately, and barely touched by real runs. Anyone measuring how much this
+code matters from live traffic will underestimate it, and anyone tempted to
+delete the fuzzy pass because "everything matches exactly in practice" should
+know that the exact matches are contingent on the model continuing to obey one
+instruction.
+
 ### Ambiguity and failure
 
 A quote matching in more than one place is not resolved silently. Candidates on

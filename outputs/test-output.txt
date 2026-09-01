@@ -237,3 +237,54 @@ KNOWN LIMITATIONS OBSERVED WHILE PRODUCING THIS OUTPUT
    model behaviour changes.
 
 See outputs/gemini-runs-script-a.txt for the per-run detail.
+
+
+==============================================================================
+
+BLIND VALIDATION — SCRIPTS B, C, E AND F
+
+Only Script A was used while the prompt was being built. Scripts B, C, E and F
+were held back and run once against the finished grader. Nothing was tuned
+against them.
+
+Across four scripts and 60 criteria there was one point of disagreement with the
+expected keys, and all 45 evidence quotes on the three text scripts located with
+none stripped as unverifiable.
+
+  script  what it is                        expected  got    quotes located
+  ------  --------------------------------  --------  -----  --------------
+  A       partially correct, planted errors  8-10     8-9    15/15, 0 stripped
+  B       fully correct, unlike the model    14       14     15/15, 0 stripped
+  C       mostly incorrect                    3        3     15/15, 0 stripped
+  E       OCR-style character corruption     14       14     15/15, 0 stripped
+  F       handwritten scan                   flagged  flagged  n/a, no text
+
+The single disagreement is Q1.C5, and it is the same criterion on every script
+that shows it. On B and E it turned out the grader was right and the key was
+wrong: the Q1 prose claims a current-direction arrow that the photographed
+diagram does not have. The key was corrected to expect 0, after the diagram was
+inspected at 6x to confirm the arrow is genuinely absent.
+
+Two results are worth stating plainly because they are what the held-back
+scripts were for:
+
+  B lost no mark to unfamiliar wording. It argues Q2 to a similar conclusion by
+  a completely different route from the model answer, and uses "dimmer" and
+  "brighter" instead of the model's phrasing, and scored 1 on all fourteen
+  written criteria. The grader is marking reasoning rather than resemblance.
+
+  C scored exactly 3/15 with zero disagreements, keeping Q1.C1, Q2.C1 and Q3.C1
+  at 1 while marking everything else in those same questions 0 — so a mostly
+  wrong question does not drag its correct criterion down with it.
+
+A third limitation, found during this validation:
+
+4. The grader can assert a visual feature that is not in the diagram.
+   On a second run of Script B it awarded Q1.C5 on the grounds that the diagram
+   "contains ... current direction marker". It does not; the drawing was checked
+   directly. This is worse than an unstable judgement, because the reasoning
+   cites evidence that does not exist, and nothing downstream can catch it —
+   evidence verification only checks quotes against the extracted text, and a
+   claim about a drawing has no quote to check.
+
+See outputs/gemini-runs-B-C-E.txt for the per-run detail.
