@@ -26,11 +26,17 @@ export type EnforcedCriterion = {
   /** True when enforcement changed this criterion in any way. */
   adjusted: boolean;
   /**
-   * True only when this criterion carries a quote that was found in the
-   * student's text. False when there is no quote at all — a missing finding or
-   * a finding about a diagram — and false when the quote was unverifiable.
+   * "verified"     — carries a quote that was found in the student's text.
+   * "unverifiable" — the model quoted something absent, and it was removed.
+   * "absent"       — no quote was offered: a missing point, or a finding about
+   *                  a drawing that has no text to quote.
+   *
+   * The last two both leave `evidence` null, but they are not the same thing,
+   * and locating treats them differently: an absent quote may be anchored to
+   * the page's figure, while an unverifiable one is left unplaced. Guessing a
+   * position for a quote the model invented would be inventing twice.
    */
-  evidenceVerified: boolean;
+  evidenceStatus: "verified" | "unverifiable" | "absent";
 };
 
 /**
@@ -128,7 +134,7 @@ export function enforce(input: {
         confidence: 0,
         reasoning: "No result was returned for this criterion.",
         adjusted: true,
-        evidenceVerified: false,
+        evidenceStatus: "absent",
       };
     }
 
@@ -136,7 +142,7 @@ export function enforce(input: {
     let awarded = result.awarded;
     let evidence = result.evidence;
     let confidence = result.confidence;
-    let evidenceVerified = false;
+    let evidenceStatus: EnforcedCriterion["evidenceStatus"] = "absent";
 
     if (result.maxMarks !== criterion.maxMarks) {
       criterionAdjustments.push(
@@ -174,7 +180,7 @@ export function enforce(input: {
     // all is allowed — a missing point, or something only the diagram shows.
     if (evidence !== null) {
       if (haystack.includes(normaliseForMatch(evidence))) {
-        evidenceVerified = true;
+        evidenceStatus = "verified";
       } else {
         const lowered = Math.min(confidence, UNVERIFIED_EVIDENCE_CONFIDENCE);
         criterionAdjustments.push(
@@ -182,6 +188,7 @@ export function enforce(input: {
         );
         evidence = null;
         confidence = lowered;
+        evidenceStatus = "unverifiable";
         adjusted = true;
       }
     }
@@ -200,7 +207,7 @@ export function enforce(input: {
       confidence,
       reasoning: result.reasoning,
       adjusted,
-      evidenceVerified,
+      evidenceStatus,
     };
   });
 

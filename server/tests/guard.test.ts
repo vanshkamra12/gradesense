@@ -173,7 +173,7 @@ describe("blank answer through the pipeline", () => {
     for (const criterion of result.criteria) {
       expect(criterion).toMatchObject({ awarded: 0, findingType: "missing", evidence: null });
       // Nothing to verify, so nothing claims to have been verified.
-      expect(criterion.evidenceVerified).toBe(false);
+      expect(criterion.evidenceStatus).toBe("absent");
       expect(criterion.adjusted).toBe(false);
     }
     expect(result.overallNotes).toContain("blank");

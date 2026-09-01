@@ -159,7 +159,7 @@ describe("enforce", () => {
 
       expect(stripped.evidence).toBeNull();
       expect(stripped.page).toBeNull();
-      expect(stripped.evidenceVerified).toBe(false);
+      expect(stripped.evidenceStatus).toBe("unverifiable");
       expect(stripped.confidence).toBeLessThanOrEqual(0.2);
       expect(result.adjustments).toContain(
         "Q1.C2: the quoted evidence does not appear anywhere in the student's answer — the quote was removed as unverifiable and confidence lowered from 0.9 to 0.2.",
@@ -193,7 +193,7 @@ describe("enforce", () => {
       const criterion = result.criteria.find((c) => c.criterionId === "Q1.C2")!;
 
       expect(criterion.evidence).not.toBeNull();
-      expect(criterion.evidenceVerified).toBe(true);
+      expect(criterion.evidenceStatus).toBe("verified");
     });
 
     it("leaves a missing finding's null evidence alone", () => {
@@ -203,7 +203,7 @@ describe("enforce", () => {
       const criterion = result.criteria.find((c) => c.criterionId === "Q3.C4")!;
 
       expect(criterion.adjusted).toBe(false);
-      expect(criterion.evidenceVerified).toBe(false);
+      expect(criterion.evidenceStatus).toBe("absent");
       expect(result.adjustments.some((a) => a.startsWith("Q3.C4"))).toBe(false);
     });
 
@@ -214,7 +214,7 @@ describe("enforce", () => {
       const criterion = result.criteria.find((c) => c.criterionId === "Q1.C5")!;
 
       expect(criterion.adjusted).toBe(false);
-      expect(criterion.evidenceVerified).toBe(false);
+      expect(criterion.evidenceStatus).toBe("absent");
     });
   });
 
@@ -307,14 +307,14 @@ describe("overmax mode through the whole pipeline", () => {
 
     const hallucinated = outcome.run.result.criteria.find((c) => c.criterionId === "Q1.C2")!;
     expect(hallucinated.evidence).toBeNull();
-    expect(hallucinated.evidenceVerified).toBe(false);
+    expect(hallucinated.evidenceStatus).toBe("unverifiable");
     expect(outcome.run.result.needsHumanReview).toBe(true);
 
     // Every genuine quote survived.
     const others = outcome.run.result.criteria.filter((c) => c.criterionId !== "Q1.C2");
     for (const criterion of others) {
       expect(criterion.evidence).not.toBeNull();
-      expect(criterion.evidenceVerified).toBe(true);
+      expect(criterion.evidenceStatus).toBe("verified");
     }
   }, 30_000);
 

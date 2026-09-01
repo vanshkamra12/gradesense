@@ -12,7 +12,8 @@
     "print:extract": "tsx src/pdf/print.ts",
     "render:pages": "tsx src/pdf/render-cli.ts",
     "print:rubric": "tsx src/grade/rubric-cli.ts",
-    "print:prompt": "tsx src/grade/prompt-cli.ts"
+    "print:prompt": "tsx src/grade/prompt-cli.ts",
+    "print:locate": "tsx src/annotate/locate-cli.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.8",

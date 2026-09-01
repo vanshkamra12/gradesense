@@ -422,3 +422,86 @@ would eventually reach persistence, or the annotation layer, or the exporter,
 carrying a subtly different object — and it would fail there rather than here.
 A test asserts the blank and marked results have identical key sets, at the
 result level and per criterion.
+
+## Locating evidence
+
+`annotate/locate.ts` turns an evidence quote into rectangles. No model is
+involved: the model supplies a quote, and this file decides where that quote is.
+
+### Matching against joined page text
+
+Matching runs against each page's concatenated text, never against an
+individual text item. pdf.js splits ligatures into separate items — "difference"
+arrives as "di", "ff", "erence", each with its own bounding box — so no single
+item holds a whole word, and a quote containing any such word could never match
+item text. The matched character range is mapped back to items afterwards,
+through `charStart`. A comment says so at the matching site, because it is the
+one thing a future reader would otherwise simplify away.
+
+Both sides are normalised the same way: whitespace collapsed, lowercased,
+punctuation dropped, keeping an offset back into the original for every
+surviving character. Collapsing whitespace is what lets a quote the model joined
+with a space match a source that wrapped the same sentence across a newline —
+which is the common case, since the extracted text carries the PDF's hard
+wrapping.
+
+### Exact, then fuzzy
+
+Exact matching collects every occurrence on every page. Only if there are none
+does the fuzzy pass run.
+
+The fuzzy pass uses Sellers' algorithm rather than a sliding window: the first
+row of the edit-distance table is left at zero, so a match may begin anywhere at
+no cost, and the smallest value in the final row is the distance from the whole
+quote to the best-matching substring of the page. The start offset is carried
+alongside the distance. This finds the true best window in one pass over the
+page, where a stepped sliding window costs one distance computation per offset
+and can still miss the optimum between steps.
+
+### The threshold, and how it was chosen
+
+0.85, measured against the 15 real quotes in the mock's valid output rather than
+picked:
+
+| input | score |
+|---|---|
+| genuine quote, unchanged | 1.000 |
+| genuine quote with the student's spelling "corrected" by the model | 0.980 (worst of 7) |
+| genuine quote with 3 characters corrupted | 0.940 (worst of 15) |
+| the same quote against a page it is not on | 0.480 (best of 15) |
+
+The band between the worst genuine repair and the best false positive runs from
+0.94 down to 0.48, so 0.85 sits in open space rather than against either edge.
+Nothing plausible needed a threshold below 0.9, let alone 0.8. Raising it to
+0.95 would begin rejecting genuine respelled quotes; lowering it to 0.5 would
+begin accepting text from the wrong page.
+
+### Ambiguity and failure
+
+A quote matching in more than one place is not resolved silently. Candidates on
+the page the model reported are preferred; if a choice still has to be made, the
+best-scoring one wins and `ambiguous` is set either way, so the UI can say that
+a choice was made.
+
+A quote matching nothing returns no rectangle and `unplaced: true`. There is no
+fallback to the reported page and no approximate position. A box in the wrong
+place is worse than no box, because it looks equally authoritative.
+
+### One rect per line
+
+A quote spanning three lines produces three rectangles, not one tall rectangle
+covering the gap between them. Items are grouped by baseline, and an item only
+partly covered by the quote is narrowed proportionally, so a quote starting
+mid-sentence does not get a box running back to the left margin.
+
+### Which findings get a figure anchor
+
+`enforce` distinguishes three states in `evidenceStatus`, and locating treats
+them differently. A `verified` quote is located. An `absent` one — a missing
+point, or a finding about a drawing that had no text to quote — falls back to
+the largest image in the document, marked `anchor: "figure"` and
+`needsPlacement: true` for a human to confirm.
+
+An `unverifiable` one — where the model quoted something that is not in the
+answer and enforcement removed it — is left unplaced. Anchoring it to the figure
+would be inventing a position for a quote that was already invented once.
