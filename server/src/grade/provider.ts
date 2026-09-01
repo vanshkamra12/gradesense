@@ -4,9 +4,14 @@ import { config } from "../config.js";
 import { extractPdf, type ExtractedDocument } from "../pdf/extract.js";
 import { loadRubric } from "./rubric.js";
 
+/** One piece of the request, in the order it should reach the model. */
+export type PromptPart =
+  | { kind: "text"; text: string }
+  | { kind: "image"; png: Buffer };
+
 export type GradeProvider = {
   name: string;
-  grade(input: { prompt: string; images: Buffer[] }): Promise<string>;
+  grade(input: { parts: PromptPart[] }): Promise<string>;
 };
 
 export const MOCK_MODES = ["valid", "malformed", "overmax", "throws", "badEvidence"] as const;

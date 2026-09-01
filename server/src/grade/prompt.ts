@@ -1,16 +1,7 @@
 import type { ExtractedDocument } from "../pdf/extract.js";
+import type { PromptPart } from "./provider.js";
 import { FINDING_TYPES } from "./schema.js";
 import type { Rubric } from "./rubric.js";
-
-/**
- * Marks where the page images belong in the request. The prompt is a single
- * string because that is what the provider interface takes, but the images have
- * to sit between the student's text and the output contract — the criteria
- * should frame the reading, and the contract should be the last thing read.
- * The Gemini provider splits on this line and interleaves the image parts; the
- * mock ignores it.
- */
-export const PAGE_IMAGES_MARKER = "<<<PAGE_IMAGES>>>";
 
 export const MAX_EVIDENCE_CHARS = 200;
 
@@ -52,9 +43,12 @@ function studentText(document: ExtractedDocument): string {
     .join("\n\n");
 }
 
-export function buildPrompt(rubric: Rubric, student: ExtractedDocument): string {
+function markingMaterialAndStudentWork(
+  rubric: Rubric,
+  student: ExtractedDocument,
+  pageCount: number,
+): string {
   const criterionCount = rubric.criteria.length;
-  const pageCount = student.pages.length;
 
   return `You are an experienced examiner marking a school examination script.
 
@@ -136,11 +130,11 @@ ${studentText(student)}
 
 The ${pageCount} page image${pageCount === 1 ? "" : "s"} below ${pageCount === 1 ? "is" : "are"} in page order. Use them to read the
 hand-drawn diagrams, and to see anything the extracted text cannot show,
-including struck-out spans.
+including struck-out spans.`;
+}
 
-${PAGE_IMAGES_MARKER}
-
-## EVIDENCE
+function outputContract(criterionCount: number): string {
+  return `## EVIDENCE
 
 Every criterion result carries evidence, or is explicitly marked as missing.
 
@@ -208,4 +202,29 @@ explanation, and no markdown code fences.
 
 Return a verdict for all ${criterionCount} criteria, including the ones the student
 answered well. Do not add a total field.`;
+}
+
+/**
+ * The request as an ordered list of parts: marking material and the student's
+ * text first so the criteria frame the reading, then one image per page, then
+ * the output contract last so it is the most recent instruction.
+ */
+export function buildPromptParts(
+  rubric: Rubric,
+  student: ExtractedDocument,
+  pageImages: Buffer[],
+): PromptPart[] {
+  return [
+    { kind: "text", text: markingMaterialAndStudentWork(rubric, student, pageImages.length) },
+    ...pageImages.map((png): PromptPart => ({ kind: "image", png })),
+    { kind: "text", text: outputContract(rubric.criteria.length) },
+  ];
+}
+
+/** Concatenates the text parts, for tests and for the prompt preview tool. */
+export function promptText(parts: PromptPart[]): string {
+  return parts
+    .filter((part) => part.kind === "text")
+    .map((part) => part.text)
+    .join("\n\n");
 }

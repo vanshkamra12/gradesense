@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "../config.js";
 import { extractPdf } from "../pdf/extract.js";
-import { buildPrompt } from "./prompt.js";
+import { buildPromptParts, promptText } from "./prompt.js";
 import { loadRubric } from "./rubric.js";
 
 const arg = process.argv[2] ?? path.join(config.fixturesDir, "student_answer_A.pdf");
@@ -24,13 +24,21 @@ const [rubric, student] = await Promise.all([
   extractPdf(new Uint8Array(fs.readFileSync(file))),
 ]);
 
-const prompt = buildPrompt(rubric, student);
+// Real PNGs are not needed to preview the text, only the right number of them.
+const parts = buildPromptParts(rubric, student, student.pages.map(() => Buffer.alloc(0)));
+const text = promptText(parts);
 
 if (process.argv.includes("--stats")) {
   console.error(
-    `${prompt.length} characters, ${prompt.split("\n").length} lines, ` +
-      `${student.pages.length} page images attached separately`,
+    `${parts.length} parts (${parts.filter((p) => p.kind === "image").length} images), ` +
+      `${text.length} characters of text, ${text.split("\n").length} lines`,
   );
 }
 
-console.log(prompt);
+for (const [index, part] of parts.entries()) {
+  if (part.kind === "text") {
+    console.log(part.text);
+  } else {
+    console.log(`\n[PROMPT PART ${index}: page image ${index}]\n`);
+  }
+}

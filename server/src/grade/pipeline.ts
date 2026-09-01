@@ -1,7 +1,7 @@
 import { extractPdf, type ExtractedDocument } from "../pdf/extract.js";
 import { renderPdfPages, type RenderedPage } from "../pdf/render.js";
-import { buildPrompt } from "./prompt.js";
-import type { GradeProvider } from "./provider.js";
+import { buildPromptParts } from "./prompt.js";
+import type { GradeProvider, PromptPart } from "./provider.js";
 import { loadRubric, type Rubric } from "./rubric.js";
 import { parseModelOutput, type GradeResponse } from "./schema.js";
 
@@ -19,7 +19,7 @@ export type GradeRun = {
   rubric: Rubric;
   student: ExtractedDocument;
   pages: RenderedPage[];
-  prompt: string;
+  parts: PromptPart[];
   provider: string;
   /** True when the first response failed to parse and the retry succeeded. */
   repaired: boolean;
@@ -27,9 +27,7 @@ export type GradeRun = {
 
 export type GradeOutcome = { ok: true; run: GradeRun } | { ok: false; error: GradeError };
 
-const REPAIR_INSTRUCTION = `
-
-## CORRECTION
+const REPAIR_INSTRUCTION = `## CORRECTION
 
 Your previous response could not be used: %REASON%
 
@@ -46,13 +44,12 @@ export async function gradeDocument(
     renderPdfPages(pdfBytes),
   ]);
 
-  const prompt = buildPrompt(rubric, student);
-  const images = pages.map((page) => page.png);
+  const parts = buildPromptParts(rubric, student, pages.map((page) => page.png));
   const attempts: string[] = [];
 
   let raw: string;
   try {
-    raw = await provider.grade({ prompt, images });
+    raw = await provider.grade({ parts });
   } catch (error) {
     return {
       ok: false,
@@ -69,16 +66,19 @@ export async function gradeDocument(
   if (first.ok) {
     return {
       ok: true,
-      run: { response: first.value, rubric, student, pages, prompt, provider: provider.name, repaired: false },
+      run: { response: first.value, rubric, student, pages, parts, provider: provider.name, repaired: false },
     };
   }
 
   // One repair attempt, telling the model what was wrong with the last answer.
-  const repairPrompt = prompt + REPAIR_INSTRUCTION.replace("%REASON%", first.message);
+  const repairParts: PromptPart[] = [
+    ...parts,
+    { kind: "text", text: REPAIR_INSTRUCTION.replace("%REASON%", first.message) },
+  ];
 
   let retryRaw: string;
   try {
-    retryRaw = await provider.grade({ prompt: repairPrompt, images });
+    retryRaw = await provider.grade({ parts: repairParts });
   } catch (error) {
     return {
       ok: false,
@@ -91,7 +91,7 @@ export async function gradeDocument(
   if (second.ok) {
     return {
       ok: true,
-      run: { response: second.value, rubric, student, pages, prompt, provider: provider.name, repaired: true },
+      run: { response: second.value, rubric, student, pages, parts, provider: provider.name, repaired: true },
     };
   }
 

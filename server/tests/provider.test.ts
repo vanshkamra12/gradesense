@@ -8,7 +8,7 @@ import { loadRubric } from "../src/grade/rubric.js";
 
 // A fresh instance per call. "malformed" counts calls, and a shared instance
 // would leak that counter between tests as order-dependent flakiness.
-const call = (mode: MockMode) => mockProvider(mode).grade({ prompt: "", images: [] });
+const call = (mode: MockMode) => mockProvider(mode).grade({ parts: [] });
 
 /** Whitespace-insensitive containment, matching how evidence is verified. */
 const normalise = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -74,10 +74,10 @@ describe("mock provider", () => {
     it("returns unparseable JSON first, then a parseable payload of the wrong shape", async () => {
       const provider = mockProvider("malformed");
 
-      const truncated = await provider.grade({ prompt: "", images: [] });
+      const truncated = await provider.grade({ parts: [] });
       expect(() => JSON.parse(truncated)).toThrow();
 
-      const wrongShape = await provider.grade({ prompt: "", images: [] });
+      const wrongShape = await provider.grade({ parts: [] });
       const parsed = JSON.parse(wrongShape);
       expect(Array.isArray(parsed.criteria)).toBe(false);
     });

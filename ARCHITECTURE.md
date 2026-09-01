@@ -259,11 +259,17 @@ output contract. The student's work comes after the marking material so that the
 criteria frame the reading rather than being applied to an impression already
 formed, and the output contract comes last so it is the most recent instruction.
 
-The images have to sit between the student's text and the output contract, but
-the provider interface takes a single prompt string. So the prompt contains a
-`<<<PAGE_IMAGES>>>` marker line at that position; the Gemini provider splits on
-it and interleaves the image parts, and the mock ignores it. That keeps the
-ordering real rather than nominal without widening the interface.
+The images have to sit between the student's text and the output contract, so
+`buildPromptParts` returns an ordered `PromptPart[]` — a discriminated union of
+`{ kind: "text" }` and `{ kind: "image" }` — rather than a string, and
+`GradeProvider.grade` takes `{ parts }`. Gemini maps the array onto its own
+parts; the mock ignores the content.
+
+An earlier draft passed a single string containing a `<<<PAGE_IMAGES>>>` marker
+for the provider to split on. That was a hidden contract: the type said "string"
+while the real agreement was "string containing a magic token in the right
+place", and nothing would have caught a provider that forgot to split. The array
+makes the ordering the type's business, which is where it belongs.
 
 ### What the prompt does and does not say
 
@@ -289,7 +295,7 @@ report positions of any kind. Coordinates are computed from the quote by
 `parseModelOutput` strips markdown fences defensively — the prompt forbids them
 and models emit them anyway — then parses and validates, reporting a JSON
 failure distinctly from a schema failure. `pipeline.ts` retries exactly once,
-appending a correction section that quotes the specific reason the last response
+appending one further text part that quotes the specific reason the last response
 was unusable, and then fails with a structured error carrying every raw attempt.
 
 A failed run returns `{ ok: false, error }` and never a partial result. There is

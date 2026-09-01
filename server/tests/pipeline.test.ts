@@ -3,8 +3,8 @@ import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { config } from "../src/config.js";
 import { gradeDocument } from "../src/grade/pipeline.js";
-import { buildPrompt, PAGE_IMAGES_MARKER, MAX_EVIDENCE_CHARS } from "../src/grade/prompt.js";
-import { mockProvider } from "../src/grade/provider.js";
+import { buildPromptParts, promptText, MAX_EVIDENCE_CHARS } from "../src/grade/prompt.js";
+import { mockProvider, type PromptPart } from "../src/grade/provider.js";
 import { loadRubric, type Rubric } from "../src/grade/rubric.js";
 import { parseModelOutput, stripFences } from "../src/grade/schema.js";
 import { extractPdf } from "../src/pdf/extract.js";
@@ -20,13 +20,20 @@ const says = (haystack: string, phrase: string) =>
   haystack.replace(/\s+/g, " ").includes(phrase.replace(/\s+/g, " "));
 
 describe("prompt", () => {
+  let parts: PromptPart[];
   let prompt: string;
   let rubric: Rubric;
 
   beforeAll(async () => {
     rubric = await loadRubric();
-    prompt = buildPrompt(rubric, await extractPdf(scriptA()));
+    const student = await extractPdf(scriptA());
+    parts = buildPromptParts(rubric, student, [Buffer.from("page-1"), Buffer.from("page-2")]);
+    prompt = promptText(parts);
   }, 30_000);
+
+  it("returns ordered parts with the images between the two text blocks", () => {
+    expect(parts.map((part) => part.kind)).toEqual(["text", "image", "image", "text"]);
+  });
 
   it("tells the model to mark each criterion independently", () => {
     expect(says(prompt, "Judge each criterion separately, on its own merits")).toBe(true);
@@ -62,15 +69,24 @@ describe("prompt", () => {
   });
 
   it("orders the sections so marking material precedes the student's work", () => {
-    const at = (needle: string) => prompt.indexOf(needle);
+    const first = parts[0]!;
+    const last = parts.at(-1)!;
+    expect(first.kind).toBe("text");
+    expect(last.kind).toBe("text");
+    if (first.kind !== "text" || last.kind !== "text") return;
+
+    const at = (needle: string) => first.text.indexOf(needle);
     expect(at("## HOW TO MARK")).toBeGreaterThan(-1);
     expect(at("## MARKING SCHEME")).toBeGreaterThan(at("## HOW TO MARK"));
     expect(at("## MODEL ANSWER — REFERENCE ONLY")).toBeGreaterThan(at("## MARKING SCHEME"));
     expect(at("## STUDENT ANSWER — EXTRACTED TEXT")).toBeGreaterThan(
       at("## MODEL ANSWER — REFERENCE ONLY"),
     );
-    expect(at(PAGE_IMAGES_MARKER)).toBeGreaterThan(at("## STUDENT ANSWER — EXTRACTED TEXT"));
-    expect(at("## OUTPUT")).toBeGreaterThan(at(PAGE_IMAGES_MARKER));
+
+    // The output contract is in the part after the images, so it is the last
+    // thing the model reads.
+    expect(last.text).toContain("## OUTPUT");
+    expect(first.text).not.toContain("## OUTPUT");
   });
 
   it("forbids totals, coordinates and fences", () => {
@@ -179,7 +195,7 @@ describe("gradeDocument against the mock", () => {
     expect(outcome.run.provider).toBe("mock:valid");
     expect(outcome.run.pages).toHaveLength(2);
     expect(outcome.run.student.pages).toHaveLength(2);
-    expect(outcome.run.prompt).toContain("## MARKING SCHEME");
+    expect(promptText(outcome.run.parts)).toContain("## MARKING SCHEME");
   }, 30_000);
 
   it("surfaces a structured error when the provider fails, with nothing partial", async () => {
@@ -205,14 +221,14 @@ describe("gradeDocument against the mock", () => {
     expect(outcome.error.attempts).toHaveLength(2);
   }, 30_000);
 
-  it("accepts a repaired second attempt", async () => {
-    // First call unparseable, second call good — the repair path succeeding.
-    const good = await mockProvider("valid").grade({ prompt: "", images: [] });
-    let calls = 0;
+  it("accepts a repaired second attempt and appends the correction as a part", async () => {
+    const good = await mockProvider("valid").grade({ parts: [] });
+    const seen: PromptPart[][] = [];
     const flaky = {
       name: "mock:flaky",
-      async grade() {
-        return calls++ === 0 ? "not json at all" : good;
+      async grade(input: { parts: PromptPart[] }) {
+        seen.push(input.parts);
+        return seen.length === 1 ? "not json at all" : good;
       },
     };
 
@@ -222,24 +238,31 @@ describe("gradeDocument against the mock", () => {
 
     expect(outcome.run.repaired).toBe(true);
     expect(outcome.run.response.criteria).toHaveLength(15);
+
+    // The retry is the original parts plus one appended correction.
+    expect(seen[1]).toHaveLength(seen[0]!.length + 1);
+    expect(promptText(seen[1]!)).toContain("## CORRECTION");
+    expect(promptText(seen[0]!)).not.toContain("## CORRECTION");
   }, 30_000);
 
-  it("passes one image per page to the provider", async () => {
-    const seen: { prompt: string; images: Buffer[] }[] = [];
-    const good = await mockProvider("valid").grade({ prompt: "", images: [] });
+  it("passes one image part per page, carrying real PNG bytes", async () => {
+    const seen: PromptPart[][] = [];
+    const good = await mockProvider("valid").grade({ parts: [] });
 
     await gradeDocument(scriptA(), {
       name: "mock:spy",
       async grade(input) {
-        seen.push(input);
+        seen.push(input.parts);
         return good;
       },
     });
 
     expect(seen).toHaveLength(1);
-    expect(seen[0]!.images).toHaveLength(2);
-    for (const image of seen[0]!.images) {
-      expect(image.subarray(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+    const images = seen[0]!.filter((part) => part.kind === "image");
+    expect(images).toHaveLength(2);
+    for (const image of images) {
+      if (image.kind !== "image") continue;
+      expect(image.png.subarray(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]));
     }
   }, 30_000);
 });
