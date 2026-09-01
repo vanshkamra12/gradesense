@@ -73,8 +73,16 @@ off-by-one here would put every annotation in the wrong place with nothing
 obviously broken.
 
 The concatenation also repairs pdf.js splitting ligatures into separate items:
-"difference" arrives as "di", "ff", "erence", and only the joined page text
-spells the word the student wrote.
+"difference" arrives as "di", "ff", "erence", each with its own bounding box,
+and only the joined page text spells the word the student wrote.
+
+This is the reason `locate.ts` must match evidence quotes against the joined
+page text and never against an item's own text. A quote containing any of the
+words the rubric actually cares about — "difference", "flow", "benefits" — would
+never match a single item, because no single item holds the whole word. Matching
+runs on the page text; only afterwards does the matched character range get
+mapped back to items through `charStart`, which is how a quote spanning a
+ligature split still resolves to every box it covers.
 
 ### Image boxes
 
@@ -89,6 +97,15 @@ Two things downstream need this. The blank-answer guard uses image presence to
 tell an empty page from a handwritten one, and `locate.ts` anchors findings
 about a drawing to the largest image on the page, which needs the area.
 
+The largest-image rule is an assumption, not a guarantee. It holds for the
+fixtures, where each page carries exactly one image and that image is the
+hand-drawn diagram. On an answer sheet with a printed logo or a header rule,
+largest-by-area would still pick the diagram, since a diagram is much bigger
+than page furniture — but nothing enforces that, and a scanned page delivered as
+one full-page image would defeat it entirely. The fallback is deliberately
+conservative for this reason: a figure anchor is marked `needsPlacement`, so the
+teacher confirms the position rather than trusting the guess.
+
 ### What extraction cannot see
 
 Struck-out text is not distinguishable here. In Script A the false start in Q3
@@ -97,3 +114,28 @@ extracted page text reads "...where the demand From the table and from my
 graph...", running the abandoned clause straight into the real answer. Only the
 rasterised page image shows the strike, which is why the prompt has to tell the
 model to ignore struck-out text rather than the extractor filtering it out.
+
+## Page rasterisation
+
+`server/src/pdf/render.ts` renders each page to a PNG at 2x. Two of the three
+questions cannot be graded from text at all — Q1 needs the hand-drawn circuit
+and Q3 needs the supply/demand graph — so these images are what let the model
+see the parts of the answer that extraction cannot reach.
+
+pdf.js 6 ships a `NodeCanvasFactory` built on `@napi-rs/canvas`, the same canvas
+the spec already calls for, and picks it automatically outside a browser. So
+rendering needs no factory of our own: create a canvas at the scaled viewport
+size and hand it to `page.render`.
+
+The canvas is filled white before rendering. A PDF page has no background of its
+own, and without that fill the PNG is transparent, which composites to black
+wherever it is later drawn — including in whatever the model sees.
+
+At 2x a fixture page is 1192 x 1684 px and around 500 KB. That is enough to read
+the pencil labels on both diagrams, and enough to see that the false start in Q3
+part (b) is struck through — the strike is a drawn line, invisible to text
+extraction, so the rendered page is the only place the model can observe it.
+
+A test measures the share of non-white pixels rather than only checking the PNG
+header, because a blank or fully transparent canvas still encodes to a
+structurally valid PNG of exactly the right dimensions.

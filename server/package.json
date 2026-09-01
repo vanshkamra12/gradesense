@@ -9,9 +9,11 @@
     "start": "node --env-file-if-exists=.env dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "print:extract": "tsx src/pdf/print.ts"
+    "print:extract": "tsx src/pdf/print.ts",
+    "render:pages": "tsx src/pdf/render-cli.ts"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^1.0.8",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "pdfjs-dist": "^6.3.289"
