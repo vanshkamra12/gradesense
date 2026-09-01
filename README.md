@@ -7,6 +7,22 @@ the right place on the page.
 The marking is editable afterwards. Moving, changing or deleting an annotation
 never re-runs grading.
 
+## What is in this submission
+
+| the brief asks for | where it is |
+|---|---|
+| a realistic student answer with planted mistakes | `fixtures/student_answer_A.pdf` |
+| a short error key for it | `fixtures/error_key_script_a.md` |
+| further test scripts and their key | `fixtures/student_answer_{B,C,D,E,F}.pdf`, `fixtures/scripts_B_C_E.md` |
+| one example of an annotated answer paper | `outputs/annotated_student_answer_A.pdf` |
+| tests and their output | `npm test`, captured in `outputs/test-output.txt` |
+| a short architecture explanation | `ARCHITECTURE.md` (first section; the rest is reference) |
+| setup and run instructions | this file |
+
+`outputs/` also holds the live grading runs used to check accuracy
+(`gemini-runs-script-a.txt`, `gemini-runs-B-C-E.txt`) and a one-page account of
+the build (`build-summary.md`).
+
 ## Requirements
 
 Node 20.19+ or 22.12+ (developed on 22.21). No database server, no cloud
@@ -48,7 +64,7 @@ GEMINI_API_KEY=your-key-here
 ### Pointing it at a different model
 
 ```bash
-GEMINI_MODEL=gemini-3.6-flash        # the default
+GEMINI_MODEL=gemini-3.5-flash        # the default
 ```
 
 Any vision-capable Gemini model works — the scripts contain hand-drawn diagrams
@@ -96,7 +112,7 @@ All read in one place, `server/src/config.ts`. `.env` is gitignored;
 | `GRADE_PROVIDER` | `mock` | `mock` or `gemini` |
 | `MOCK_MODE` | `valid` | `valid`, `malformed`, `overmax`, `throws`, `badEvidence` |
 | `GEMINI_API_KEY` | — | required only when `GRADE_PROVIDER=gemini` |
-| `GEMINI_MODEL` | `gemini-3.6-flash` | any vision-capable Gemini model |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | any vision-capable Gemini model |
 | `GEMINI_BASE_URL` | — | points the provider at a stub endpoint, for tests |
 | `DB_PATH` | `server/data/gradesense.sqlite` | SQLite file |
 | `STORAGE_DIR` | `server/storage` | uploaded originals and generated files |
@@ -170,6 +186,6 @@ to 7, one below the expected 8–10 band. The accuracy test asserts Q2.C1–C4 s
 strict deliberately: a suite that fails one run in six and names the reason is
 worth more than a green one that conceals the problem.
 
-Grading quality depends on the model. These figures come from
-`gemini-3.6-flash`, the strongest model reachable on the key used here; the pro
-tiers returned `429` with `limit: 0`.
+Grading quality depends on the model. The figures in `outputs/` were produced on
+`gemini-3.6-flash` and `gemini-3.5-flash` — each file names the model it used.
+The pro tiers returned `429` with `limit: 0` on the key available here.

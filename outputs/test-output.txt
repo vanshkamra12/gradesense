@@ -1,75 +1,57 @@
 GradeSense — test suite output
-Generated: 2026-09-01 07:28 UTC
+Generated: 2026-09-01 18:37 UTC
 
 SECTION 1 — offline suite (npm test)
 Runs against the mock provider. No API key, no network. This verifies the
 pipeline: enforcement, clamping, evidence verification, locating, persistence,
-annotation editing, export and error handling. It cannot verify grading
-quality, which is section 2.
+annotation editing, export, uploaded-document handling and error handling. It
+cannot verify grading quality, which is section 2.
 
 ==============================================================================
 
  RUN  v4.1.11 /Users/vanshk/Desktop/assignment gradesense/server
- ✓ tests/gemini.test.ts > mapping prompt parts onto Gemini's shape > keeps the order and turns images into inline base64 data 4ms
- ✓ tests/gemini.test.ts > which failures are worth retrying > retries rate limits and server faults 1ms
+ ✓ tests/gemini.test.ts > mapping prompt parts onto Gemini's shape > keeps the order and turns images into inline base64 data 2ms
+ ✓ tests/gemini.test.ts > which failures are worth retrying > retries rate limits and server faults 0ms
  ✓ tests/gemini.test.ts > which failures are worth retrying > does not retry a refusal, a bad request or a missing model 0ms
- ✓ tests/gemini.test.ts > the provider against a stub endpoint > sends the parts in order, asks for JSON, and returns the text 42ms
- ✓ tests/db.test.ts > storeOriginal > writes the upload under the hash of its bytes and leaves it read-only 57ms
+ ✓ tests/gemini.test.ts > the provider against a stub endpoint > sends the parts in order, asks for JSON, and returns the text 36ms
+ ✓ tests/db.test.ts > storeOriginal > writes the upload under the hash of its bytes and leaves it read-only 75ms
  ✓ tests/db.test.ts > storeOriginal > is content-addressed, so the same file twice is one stored copy 0ms
  ✓ tests/guard.test.ts > studentContribution > discards lines that also appear in the question paper 1ms
  ✓ tests/guard.test.ts > studentContribution > ignores case and spacing when matching scaffolding 0ms
  ✓ tests/guard.test.ts > studentContribution > keeps a student line that merely resembles a heading 0ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > exact matching > locates a quote that sits on a single line 13ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > exact matching > narrows the box to the quote rather than the whole line 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote the model joined with a space where the source wraps with a newline 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote containing the struck-out false start in Q3(b) 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote containing a ligature-split word 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > fuzzy matching > still finds a quote whose spelling the model corrected 26ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > fuzzy matching > survives several misspellings at once 5ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > returns no box and marks the quote unplaced 40ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > does not fall back to the page the model reported 9ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > returns unplaced for an empty quote 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > multi-line quotes > produces one rect per line rather than one tall rect 1ms
- ✓ tests/guard.test.ts > assessAnswerSheet on the real fixtures > calls the blank fixture blank, despite its 53 characters of headings 17ms
- ✓ tests/guard.test.ts > assessAnswerSheet on the real fixtures > calls a full script gradeable 303ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > multi-line quotes > orders rects from the top of the page downwards 1ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > reports that a quote matching twice was ambiguous, and still places it 0ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > is not ambiguous when the quote occurs once 0ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > prefers a match on the page the model reported 0ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > figure fallback > anchors to the largest image and asks a human to confirm the position 0ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > figure fallback > is unplaced when the document has no images at all 12ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded marking scheme replaces the bundled one > parses the uploaded scheme to 14 criteria, not the bundled 15 91ms
+ ✓ tests/guard.test.ts > assessAnswerSheet on the real fixtures > calls the blank fixture blank, despite its 53 characters of headings 11ms
  ✓ tests/enforce.test.ts > enforce > marks > clamps an award above the criterion maximum and records it by name 2ms
  ✓ tests/enforce.test.ts > enforce > marks > clamps a negative award to zero 0ms
- ✓ tests/enforce.test.ts > enforce > marks > floors a fractional award rather than rounding it up 0ms
+ ✓ tests/enforce.test.ts > enforce > marks > floors a fractional award rather than rounding it up 1ms
  ✓ tests/enforce.test.ts > enforce > marks > floors a fraction that is nearly the full mark 0ms
  ✓ tests/enforce.test.ts > enforce > marks > recomputes the total as the sum of clamped awards 0ms
  ✓ tests/enforce.test.ts > enforce > marks > uses the marking scheme's maximum, not the model's 0ms
  ✓ tests/enforce.test.ts > enforce > criterion set > fills in an omitted criterion as zero and missing 1ms
  ✓ tests/enforce.test.ts > enforce > criterion set > drops a criterion that is not in the marking scheme 0ms
- ✓ tests/enforce.test.ts > enforce > criterion set > keeps the first of duplicated criteria 0ms
+ ✓ tests/enforce.test.ts > enforce > criterion set > keeps the first of duplicated criteria 3ms
  ✓ tests/enforce.test.ts > enforce > criterion set > returns criteria in marking-scheme order however the model ordered them 0ms
  ✓ tests/enforce.test.ts > enforce > evidence > strips a quote that does not occur in the student's answer 1ms
- ✓ tests/enforce.test.ts > enforce > evidence > words a filled-in criterion differently from a hallucinated quote 9ms
+ ✓ tests/enforce.test.ts > enforce > evidence > words a filled-in criterion differently from a hallucinated quote 1ms
  ✓ tests/enforce.test.ts > enforce > evidence > accepts a quote that differs from the source only in whitespace 0ms
  ✓ tests/enforce.test.ts > enforce > evidence > leaves a missing finding's null evidence alone 0ms
- ✓ tests/enforce.test.ts > enforce > evidence > allows a diagram finding to carry no quote without being called a hallucination 0ms
- ✓ tests/enforce.test.ts > enforce > confidence and review > accepts a clean, confident result without review 0ms
+ ✓ tests/enforce.test.ts > enforce > evidence > allows a diagram finding to carry no quote without being called a hallucination 1ms
+ ✓ tests/enforce.test.ts > enforce > confidence and review > accepts a clean, confident result without review 1ms
  ✓ tests/enforce.test.ts > enforce > confidence and review > flags for review when any criterion was adjusted, even at high confidence 0ms
  ✓ tests/enforce.test.ts > enforce > confidence and review > flags for review on low confidence alone, with nothing adjusted 0ms
  ✓ tests/enforce.test.ts > enforce > confidence and review > penalises a repaired response and says so 0ms
  ✓ tests/enforce.test.ts > enforce > confidence and review > keeps confidence inside 0..1 however many adjustments pile up 0ms
- ✓ tests/guard.test.ts > blank answer through the pipeline > returns a zero result without calling the provider 250ms
- ✓ tests/locate.test.ts > locateQuote against student_answer_A > every quote the mock actually produces > locates all 15 on the page the model reported 422ms
- ✓ tests/render.test.ts > renderPdfPages > renders every page as a PNG at 2x the page size 2ms
- ✓ tests/render.test.ts > renderPdfPages > draws content on an opaque white background 43ms
- ✓ tests/render.test.ts > renderPdfPages > renders larger images at a higher scale 30ms
+ ✓ tests/guard.test.ts > assessAnswerSheet on the real fixtures > calls a full script gradeable 347ms
+ ✓ tests/render.test.ts > renderPdfPages > renders every page as a PNG at 2x the page size 1ms
+ ✓ tests/render.test.ts > renderPdfPages > draws content on an opaque white background 42ms
+ ✓ tests/render.test.ts > renderPdfPages > renders larger images at a higher scale 33ms
  ✓ tests/pipeline.test.ts > prompt > returns ordered parts with the images between the two text blocks 1ms
  ✓ tests/pipeline.test.ts > prompt > tells the model to mark each criterion independently 1ms
  ✓ tests/pipeline.test.ts > prompt > includes every criterion with its ID and maximum 0ms
  ✓ tests/pipeline.test.ts > prompt > includes every guidance line verbatim 0ms
  ✓ tests/pipeline.test.ts > prompt > labels the guidance as authoritative marking instruction 0ms
- ✓ tests/pipeline.test.ts > prompt > labels the model answer as reference only and disclaims similarity 1ms
- ✓ tests/pipeline.test.ts > prompt > orders the sections so marking material precedes the student's work 0ms
+ ✓ tests/pipeline.test.ts > prompt > labels the model answer as reference only and disclaims similarity 2ms
+ ✓ tests/pipeline.test.ts > prompt > orders the sections so marking material precedes the student's work 1ms
  ✓ tests/pipeline.test.ts > prompt > forbids totals, coordinates and fences 1ms
  ✓ tests/pipeline.test.ts > prompt > states the evidence rules, including the length limit 1ms
  ✓ tests/pipeline.test.ts > prompt > covers text/image conflict and struck-out spans 0ms
@@ -77,26 +59,57 @@ quality, which is section 2.
  ✓ tests/pipeline.test.ts > prompt > defines partial as scoring zero, so the model does not invent a fraction 1ms
  ✓ tests/pipeline.test.ts > prompt > scopes the guidance override to the criteria it speaks about 0ms
  ✓ tests/pipeline.test.ts > prompt > tells the model to fail loudly when the page images are absent 0ms
- ✓ tests/pipeline.test.ts > prompt > says spelling and grammar cost no marks on their own 1ms
- ✓ tests/pipeline.test.ts > prompt > asks for per-criterion confidence and treats uncertainty as valid 1ms
+ ✓ tests/pipeline.test.ts > prompt > says spelling and grammar cost no marks on their own 0ms
+ ✓ tests/pipeline.test.ts > prompt > asks for per-criterion confidence and treats uncertainty as valid 2ms
  ✓ tests/pipeline.test.ts > prompt > contains the student's text and both pages 0ms
  ✓ tests/pipeline.test.ts > stripFences > leaves bare JSON alone 0ms
  ✓ tests/pipeline.test.ts > stripFences > removes ```json fences 0ms
  ✓ tests/pipeline.test.ts > stripFences > removes bare fences and surrounding whitespace 0ms
- ✓ tests/pipeline.test.ts > parseModelOutput > reports a JSON failure distinctly from a schema failure 2ms
- ✓ tests/pipeline.test.ts > parseModelOutput > rejects a confidence outside 0..1 1ms
+ ✓ tests/pipeline.test.ts > parseModelOutput > reports a JSON failure distinctly from a schema failure 3ms
+ ✓ tests/pipeline.test.ts > parseModelOutput > rejects a confidence outside 0..1 2ms
+ ✓ tests/guard.test.ts > blank answer through the pipeline > returns a zero result without calling the provider 202ms
  ✓ tests/gemini.test.ts > the provider against a stub endpoint > retries once on a transient failure and succeeds 1514ms
  ✓ tests/gemini.test.ts > the provider against a stub endpoint > does not retry a permanent failure 3ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_A > reads both pages with their dimensions 1ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_A > finds the hand-drawn figure on each page 1ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_A > gives every item a charStart that indexes its own text in the page text 1ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_A > rejoins ligatures split across items 0ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_A > preserves the planted misspellings rather than correcting them 0ms
- ✓ tests/extract.test.ts > extractPdf on student_answer_D > reports one page with no images and nothing but question headings 33ms
- ✓ tests/required-cases.test.ts > 1. a fully correct answer > scores full marks with no criterion below its maximum 1196ms
- ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > clamps, refills, drops, recomputes the total and flags for review 1493ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded marking scheme replaces the bundled one > grades against the uploaded scheme's 14 criteria 1394ms
+ ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > clamps, refills, drops, recomputes the total and flags for review 1322ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded marking scheme replaces the bundled one > fails with a message naming the problem when the scheme does not add up 9ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded marking scheme replaces the bundled one > fails rather than falling back when the scheme is not a marking scheme at all 31ms
+ ✓ tests/required-cases.test.ts > 1. a fully correct answer > scores full marks with no criterion below its maximum 1062ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > exact matching > locates a quote that sits on a single line 2ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > exact matching > narrows the box to the quote rather than the whole line 3ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote the model joined with a space where the source wraps with a newline 2ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote containing the struck-out false start in Q3(b) 6ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > the awkward real quotes > matches a quote containing a ligature-split word 1ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > fuzzy matching > still finds a quote whose spelling the model corrected 18ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > fuzzy matching > survives several misspellings at once 4ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > returns no box and marks the quote unplaced 10ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > does not fall back to the page the model reported 6ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > when nothing matches > returns unplaced for an empty quote 0ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > multi-line quotes > produces one rect per line rather than one tall rect 1ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > multi-line quotes > orders rects from the top of the page downwards 1ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > reports that a quote matching twice was ambiguous, and still places it 0ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > is not ambiguous when the quote occurs once 0ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > ambiguity > prefers a match on the page the model reported 0ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > figure fallback > anchors to the largest image and asks a human to confirm the position 0ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > figure fallback > is unplaced when the document has no images at all 15ms
+ ✓ tests/pipeline.test.ts > gradeDocument against the mock > grades end to end and returns all 15 criteria 1248ms
+ ✓ tests/locate.test.ts > locateQuote against student_answer_A > every quote the mock actually produces > locates all 15 on the page the model reported 399ms
+ ✓ tests/guard.test.ts > blank answer through the pipeline > comes out in the same shape and with the same invariants as a marked script 1334ms
+ ✓ tests/db.test.ts > saveGradeRun and getResult > round-trips the marks unchanged 5ms
+ ✓ tests/export.test.ts > annotated PDF export > produces a valid PDF with the original pages plus a summary 254ms
+ ✓ tests/guard.test.ts > blank answer through the pipeline > scores zero at full confidence with no review flag 46ms
+ ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > has no extractable text and a single page image 110ms
+ ✓ tests/export.test.ts > annotated PDF export > leaves the stored original byte-identical and still read-only 44ms
+ ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > carries the per-criterion marks through to a total in the 8-10 band 923ms
+ ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > verifies evidence against the real extracted text 967ms
+ ✓ tests/db.test.ts > saveGradeRun and getResult > keeps the adjustments and review reasons 950ms
+ ✓ tests/gemini.test.ts > the provider against a stub endpoint > fails cleanly when both attempts fail 1511ms
+ ✓ tests/gemini.test.ts > the provider against a stub endpoint > treats an empty response as an error rather than as an answer 3ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded marking scheme replaces the bundled one > uses the bundled scheme when none is uploaded 1264ms
+ ✓ tests/export.test.ts > annotated PDF export > coordinates carry over unchanged > draws the box where the rect says, in image space 730ms
+ ✓ tests/pipeline.test.ts > gradeDocument against the mock > surfaces a structured error when the provider fails, with nothing partial 1026ms
  ✓ tests/provider.test.ts > mock provider > offers exactly the five modes 2ms
- ✓ tests/provider.test.ts > mock provider > is deterministic — the same mode returns the same bytes 189ms
+ ✓ tests/provider.test.ts > mock provider > is deterministic — the same mode returns the same bytes 152ms
  ✓ tests/provider.test.ts > mock provider > contains no timestamps or other varying values 0ms
  ✓ tests/provider.test.ts > mock provider > valid mode > returns all 15 criteria, with IDs taken from the parsed rubric 0ms
  ✓ tests/provider.test.ts > mock provider > valid mode > quotes evidence verbatim from the extracted student answer 1ms
@@ -106,10 +119,29 @@ quality, which is section 2.
  ✓ tests/provider.test.ts > mock provider > overmax mode > exercises every enforcement path at once 0ms
  ✓ tests/provider.test.ts > mock provider > badEvidence mode > returns well-formed output whose quote is absent from the student answer 0ms
  ✓ tests/provider.test.ts > mock provider > throws mode > rejects rather than returning a payload 0ms
- ✓ tests/pipeline.test.ts > gradeDocument against the mock > grades end to end and returns all 15 criteria 1402ms
- ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > has exactly 15 criteria worth 1 mark each 1ms
+ ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > is classified unclear rather than blank, because the page carries an image 90ms
+ ✓ tests/db.test.ts > saveGradeRun and getResult > stores the page dimensions and extracted text alongside the result 1ms
+ ✓ tests/db.test.ts > saveGradeRun and getResult > returns null for an unknown id 0ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded question paper feeds the blank guard > strips the uploaded paper's lines rather than the bundled one's 127ms
+ ✓ tests/uploaded-documents.test.ts > an uploaded question paper feeds the blank guard > treats the sheet as blank when the full paper is uploaded 88ms
+ ✓ tests/export.test.ts > annotated PDF export > coordinates carry over unchanged > lands over the words the criterion quoted 176ms
+ ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > cannot reach any grading module from the annotation routes 5ms
+ ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > reaches the whole pipeline from the grade route, proving the graph is real 1ms
+ ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > keeps db.ts free of the grading pipeline 0ms
+ ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > has no mention of grading in the annotation route source 0ms
+ ✓ tests/config.test.ts > config > defaults to the mock provider, whether or not a key is configured 1ms
+ ✓ tests/config.test.ts > config > keeps runtime storage outside the source tree 1ms
+ ✓ tests/config.test.ts > config > finds the fixtures directory 0ms
+ ✓ tests/export.test.ts > annotated PDF export > prints the total, confidence, review flag and adjustments on the summary 186ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_A > reads both pages with their dimensions 2ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_A > finds the hand-drawn figure on each page 10ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_A > gives every item a charStart that indexes its own text in the page text 1ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_A > rejoins ligatures split across items 0ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_A > preserves the planted misspellings rather than correcting them 1ms
+ ✓ tests/extract.test.ts > extractPdf on student_answer_D > reports one page with no images and nothing but question headings 36ms
+ ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > has exactly 15 criteria worth 1 mark each 2ms
  ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > has three questions of five criteria each 1ms
- ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > numbers criteria as Qn.Cm and keeps them attached to their question 0ms
+ ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > numbers criteria as Qn.Cm and keeps them attached to their question 1ms
  ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > reassembles criteria whose text wraps onto a second line 0ms
  ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > carries a non-empty guidance block for Q1 and Q2 0ms
  ✓ tests/rubric.test.ts > rubric parsed from model_answer.pdf > preserves the three load-bearing guidance sentences verbatim 0ms
@@ -119,66 +151,41 @@ quality, which is section 2.
  ✓ tests/rubric.test.ts > parseRubric error handling > refuses a heading whose marks disagree with the table total 0ms
  ✓ tests/rubric.test.ts > parseRubric error handling > refuses a rubric row with no mark 0ms
  ✓ tests/rubric.test.ts > determinism > produces an identical rubric on a second parse 1ms
- ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > cannot reach any grading module from the annotation routes 3ms
- ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > reaches the whole pipeline from the grade route, proving the graph is real 1ms
- ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > keeps db.ts free of the grading pipeline 0ms
- ✓ tests/isolation.test.ts > annotation editing is structurally isolated from grading > has no mention of grading in the annotation route source 0ms
- ✓ tests/export.test.ts > annotated PDF export > produces a valid PDF with the original pages plus a summary 252ms
- ✓ tests/guard.test.ts > blank answer through the pipeline > comes out in the same shape and with the same invariants as a marked script 1436ms
- ✓ tests/config.test.ts > config > defaults to the mock provider, whether or not a key is configured 1ms
- ✓ tests/config.test.ts > config > keeps runtime storage outside the source tree 0ms
- ✓ tests/config.test.ts > config > finds the fixtures directory 0ms
- ✓ tests/db.test.ts > saveGradeRun and getResult > round-trips the marks unchanged 1ms
- ✓ tests/guard.test.ts > blank answer through the pipeline > scores zero at full confidence with no review flag 78ms
- ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > has no extractable text and a single page image 114ms
+ ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > leaves a clean run unadjusted and unflagged 963ms
+ ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > locates every piece of evidence on the page 971ms
  ↓ tests/script-a-accuracy.test.ts > Script A against the real provider > reproduces the error key: six criteria at zero, total in the 8-10 band
  ✓ tests/script-a-accuracy.test.ts > Script A accuracy check > is skipped without a live provider, and says so 1ms
- ✓ tests/export.test.ts > annotated PDF export > leaves the stored original byte-identical and still read-only 35ms
- ✓ tests/gemini.test.ts > the provider against a stub endpoint > fails cleanly when both attempts fail 1505ms
- ✓ tests/gemini.test.ts > the provider against a stub endpoint > treats an empty response as an error rather than as an answer 2ms
- ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > verifies evidence against the real extracted text 967ms
- ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > carries the per-criterion marks through to a total in the 8-10 band 1004ms
- ✓ tests/db.test.ts > saveGradeRun and getResult > keeps the adjustments and review reasons 983ms
- ✓ tests/export.test.ts > annotated PDF export > coordinates carry over unchanged > draws the box where the rect says, in image space 776ms
- ✓ tests/pipeline.test.ts > gradeDocument against the mock > surfaces a structured error when the provider fails, with nothing partial 963ms
- ✓ tests/db.test.ts > saveGradeRun and getResult > stores the page dimensions and extracted text alongside the result 2ms
- ✓ tests/db.test.ts > saveGradeRun and getResult > returns null for an unknown id 0ms
- ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > is classified unclear rather than blank, because the page carries an image 91ms
- ✓ tests/export.test.ts > annotated PDF export > coordinates carry over unchanged > lands over the words the criterion quoted 170ms
- ✓ tests/export.test.ts > annotated PDF export > prints the total, confidence, review flag and adjustments on the summary 145ms
- ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > leaves a clean run unadjusted and unflagged 966ms
- ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > locates every piece of evidence on the page 986ms
- ✓ tests/db.test.ts > listHistory > lists persisted runs with their scores and annotation counts 950ms
- ✓ tests/pipeline.test.ts > gradeDocument against the mock > retries once on malformed output and then fails cleanly, recording both attempts 976ms
- ✓ tests/db.test.ts > annotations are independent of the grading result > has no foreign key from annotations to criterion_results 0ms
- ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > is graded rather than zeroed, with confidence capped and review required 846ms
- ✓ tests/export.test.ts > annotated PDF export > transliterates characters the standard fonts cannot encode 241ms
- ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > names the machine-readable-text cause rather than the generic threshold message 911ms
- ✓ tests/guard.test.ts > a synthetic part-scanned sheet > is classified unclear once the headings are discounted 85ms
- ✓ tests/required-cases.test.ts > 3. an incorrect answer > scores near zero while still carrying evidence for what was found 828ms
- ✓ tests/export.test.ts > annotated PDF export > lists findings that could not be placed 984ms
- ✓ tests/db.test.ts > annotations are independent of the grading result > stores every located criterion as an annotation 849ms
- ✓ tests/pipeline.test.ts > gradeDocument against the mock > accepts a repaired second attempt and appends the correction as a part 793ms
- ✓ tests/required-cases.test.ts > 4. a blank answer > scores zero with high confidence and no review, without calling the model 57ms
- ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > survives move, reopen, and reopen again with the marks untouched 713ms
- ✓ tests/required-cases.test.ts > 5. OCR-like spelling errors > locates evidence through fuzzy matching despite corrected spelling 754ms
- ✓ tests/pipeline.test.ts > gradeDocument against the mock > passes one image part per page, carrying real PNG bytes 734ms
- ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > adds and deletes annotations without touching the marks 688ms
- ✓ tests/export.test.ts > export reflects the current annotation state > changes with what the teacher moved, added and deleted 1566ms
- ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > clearing a rect marks the annotation unplaced rather than deleting it 617ms
- ✓ tests/required-cases.test.ts > 5. OCR-like spelling errors > does not cost marks for spelling alone 1330ms
+ ✓ tests/db.test.ts > listHistory > lists persisted runs with their scores and annotation counts 992ms
+ ✓ tests/pipeline.test.ts > gradeDocument against the mock > retries once on malformed output and then fails cleanly, recording both attempts 818ms
+ ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > is graded rather than zeroed, with confidence capped and review required 778ms
+ ✓ tests/db.test.ts > annotations are independent of the grading result > has no foreign key from annotations to criterion_results 1ms
+ ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > names the machine-readable-text cause rather than the generic threshold message 775ms
+ ✓ tests/guard.test.ts > a synthetic part-scanned sheet > is classified unclear once the headings are discounted 59ms
+ ✓ tests/export.test.ts > annotated PDF export > transliterates characters the standard fonts cannot encode 186ms
+ ✓ tests/required-cases.test.ts > 3. an incorrect answer > scores near zero while still carrying evidence for what was found 658ms
+ ✓ tests/export.test.ts > annotated PDF export > lists findings that could not be placed 817ms
+ ✓ tests/db.test.ts > annotations are independent of the grading result > stores every located criterion as an annotation 682ms
+ ✓ tests/pipeline.test.ts > gradeDocument against the mock > accepts a repaired second attempt and appends the correction as a part 606ms
+ ✓ tests/required-cases.test.ts > 4. a blank answer > scores zero with high confidence and no review, without calling the model 44ms
+ ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > survives move, reopen, and reopen again with the marks untouched 618ms
+ ✓ tests/required-cases.test.ts > 5. OCR-like spelling errors > locates evidence through fuzzy matching despite corrected spelling 661ms
+ ✓ tests/pipeline.test.ts > gradeDocument against the mock > passes one image part per page, carrying real PNG bytes 611ms
+ ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > adds and deletes annotations without touching the marks 590ms
+ ✓ tests/export.test.ts > export reflects the current annotation state > changes with what the teacher moved, added and deleted 1301ms
+ ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > clearing a rect marks the annotation unplaced rather than deleting it 583ms
+ ✓ tests/required-cases.test.ts > 5. OCR-like spelling errors > does not cost marks for spelling alone 1149ms
  ✓ tests/db.test.ts > a reopened result stays fully editable, and editing never re-grades > returns null when patching an annotation that does not exist 0ms
- ✓ tests/db.test.ts > every annotation mutation leaves the grading result byte-identical > survives create, move, resize, recolour, recomment, unplace and delete 602ms
- ✓ tests/required-cases.test.ts > 6. malformed model output > retries once, then fails cleanly without throwing or returning a partial result 605ms
- ✓ tests/db.test.ts > every annotation mutation leaves the grading result byte-identical > leaves the stored document and its geometry untouched by editing 598ms
- ✓ tests/required-cases.test.ts > 6. malformed model output > accepts a repaired second attempt and flags it for review 608ms
- ✓ tests/required-cases.test.ts > 7. a model or API failure > surfaces a structured error and persists nothing 561ms
- ✓ tests/required-cases.test.ts > 8. a score exceeding the maximum > clamps it, recomputes the total, records an adjustment and flags for review 576ms
- ✓ tests/required-cases.test.ts > 8. a score exceeding the maximum > persists the clamped result rather than the model's numbers 581ms
- Test Files  15 passed (15)
-      Tests  164 passed | 1 skipped (165)
-   Start at  12:58:25
-   Duration  10.30s (transform 711ms, setup 162ms, import 4.26s, tests 44.69s, environment 1ms)
+ ✓ tests/db.test.ts > every annotation mutation leaves the grading result byte-identical > survives create, move, resize, recolour, recomment, unplace and delete 566ms
+ ✓ tests/required-cases.test.ts > 6. malformed model output > retries once, then fails cleanly without throwing or returning a partial result 560ms
+ ✓ tests/required-cases.test.ts > 6. malformed model output > accepts a repaired second attempt and flags it for review 563ms
+ ✓ tests/db.test.ts > every annotation mutation leaves the grading result byte-identical > leaves the stored document and its geometry untouched by editing 571ms
+ ✓ tests/required-cases.test.ts > 7. a model or API failure > surfaces a structured error and persists nothing 555ms
+ ✓ tests/required-cases.test.ts > 8. a score exceeding the maximum > clamps it, recomputes the total, records an adjustment and flags for review 557ms
+ ✓ tests/required-cases.test.ts > 8. a score exceeding the maximum > persists the clamped result rather than the model's numbers 564ms
+ Test Files  16 passed (16)
+      Tests  171 passed | 1 skipped (172)
+   Start at  00:07:52
+   Duration  9.53s (transform 762ms, setup 184ms, import 4.38s, tests 43.80s, environment 1ms)
 
 
 ==============================================================================
@@ -186,22 +193,19 @@ quality, which is section 2.
 SECTION 2 — live accuracy check against the real provider
 Command: GRADE_PROVIDER=gemini npx vitest run tests/script-a-accuracy.test.ts
 
-This is the only test that says anything about grading quality. It grades
-Script A with Gemini and compares against fixtures/error_key_script_a.md.
-In section 1 it is skipped, which is why section 1 proves nothing about
-accuracy.
+The only test that says anything about grading quality. It grades Script A with
+Gemini and compares against fixtures/error_key_script_a.md. In section 1 it is
+skipped, which is why section 1 proves nothing about accuracy.
 
 ==============================================================================
 
  RUN  v4.1.11 /Users/vanshk/Desktop/assignment gradesense/server
- ✓ tests/script-a-accuracy.test.ts > Script A against the real provider > reproduces the error key: six criteria at zero, total in the 8-10 band 48910ms
+ ✓ tests/script-a-accuracy.test.ts > Script A against the real provider > reproduces the error key: six criteria at zero, total in the 8-10 band 29101ms
  ↓ tests/script-a-accuracy.test.ts > Script A accuracy check > is skipped without a live provider, and says so
  Test Files  1 passed (1)
       Tests  1 passed | 1 skipped (2)
-   Start at  12:58:44
-   Duration  49.23s (transform 58ms, setup 13ms, import 240ms, tests 48.91s, environment 0ms)
-
-
+   Start at  00:08:12
+   Duration  29.35s (transform 56ms, setup 12ms, import 179ms, tests 29.10s, environment 0ms)
 ==============================================================================
 
 KNOWN LIMITATIONS OBSERVED WHILE PRODUCING THIS OUTPUT
