@@ -576,3 +576,58 @@ Patching an annotation's rect sets its anchor to `manual` and clears
 system should stop asking them to confirm it. Clearing the rect marks the
 annotation unplaced rather than deleting it, so a finding never silently
 disappears from the sidebar.
+
+## The frontend
+
+React and Vite, plain CSS, no component library. The page is the primary object
+and takes the whole left column; the result panel is a fixed 420px beside it.
+
+### Rendering and the overlay
+
+The browser renders each page to a canvas with pdf.js, using the original bytes
+served from `GET /api/results/:id/pdf`. The annotation layer is an absolutely
+positioned div over that canvas.
+
+The scale is rendered width over PDF page width, and it is recomputed by a
+`ResizeObserver` on the page container rather than being measured once. Every
+rectangle is positioned from that scale, so an overlay that did not react to a
+resize would drift away from the words it marks the moment the window changed
+size — the most visible possible bug in this system. Measured across a
+1000px → 520px change, an annotation's position drifts by 0.0005 of the page
+width, which is a quarter of a pixel of rounding.
+
+The canvas is rendered at up to 2x the CSS size and scaled down by its style
+width, so text stays sharp. PDF user space has its origin at the bottom left and
+CSS at the top left, so the layer flips the y axis: `top = pageHeight - y - h`.
+
+### The two-way link
+
+Clicking a criterion highlights its boxes; clicking a box selects and scrolls to
+its criterion. Both directions run off one piece of state, the selected
+criterion id, held in `App`.
+
+The scroll is a direct `scrollTop` assignment rather than `scrollIntoView` or a
+smooth scroll, for two measured reasons. `scrollIntoView` scrolls every
+scrollable ancestor, which dragged the page viewer around as a side effect of
+selecting a criterion. And a smooth scroll is animated over several frames,
+which the canvas repainting beside it cancels partway — a 1299px scroll was
+measured landing 22px down. An instant jump always arrives.
+
+### Colour is never the only signal
+
+Red for incorrect, amber for partial and missing, green for correct — and the
+criterion id is printed on the box itself, so the annotation is identifiable
+without seeing colour at all. Correct criteria are drawn as underlines with no
+fill, since a tint behind the words reads as a strikethrough. A quote spanning
+three lines produces three boxes but only one tag, on the first.
+
+### Nothing is hidden
+
+Findings that could not be placed are listed in the panel under a heading that
+says so, with the count, rather than being dropped. This includes the case where
+the model quoted something that is not in the answer: enforcement removes the
+quote, and the annotation is kept with no rectangle so the finding still
+appears in that list. A finding that exists but could not be positioned is
+exactly what a teacher needs telling about, and it would otherwise vanish
+silently. Figure-anchored annotations get their own list, labelled as a best
+guess to confirm.

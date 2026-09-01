@@ -1,19 +1,468 @@
 :root {
+  --ink: #1a1a1a;
+  --muted: #6a6a6a;
+  --line: #d6d4cf;
+  --paper: #ffffff;
+  --ground: #f2f1ee;
+  --red: #b3261e;
+  --amber: #a86400;
+  --green: #1c6b3c;
+
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #1a1a1a;
-  background: #f6f6f4;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--ground);
 }
 
 body {
   margin: 0;
 }
 
-main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px;
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 10px 16px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-header h1 {
+  font-size: 16px;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* The page is the primary object, so it gets the room. */
+.app-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 16px;
+  padding: 16px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.viewer,
+.sidebar {
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Chrome may otherwise nudge the scroll position to keep content anchored
+     while the page canvas repaints, which fights the jump to a criterion. */
+  overflow-anchor: none;
+}
+
+.muted {
+  color: var(--muted);
 }
 
 .error {
-  color: #b00020;
+  color: var(--red);
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.uploader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- page and overlay --- */
+
+.pages {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page {
+  margin: 0;
+}
+
+.page-canvas {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  line-height: 0;
+}
+
+.page figcaption {
+  padding-top: 4px;
+  font-size: 12px;
+}
+
+.annotation-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.annotation {
+  position: absolute;
+  padding: 0;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.annotation-underline {
+  border-width: 0 0 2px 0;
+  border-radius: 0;
+  /* No fill: a tint behind the words reads as a strikethrough, and these mark
+     the criteria the student got right. */
+  background: none;
+}
+
+.annotation-red {
+  color: var(--red);
+  background: rgb(179 38 30 / 8%);
+}
+.annotation-amber {
+  color: var(--amber);
+  background: rgb(168 100 0 / 10%);
+}
+.annotation-green {
+  color: var(--green);
+  background: rgb(28 107 60 / 8%);
+}
+
+.annotation.is-selected {
+  border-width: 2.5px;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 12%);
+  background: rgb(255 226 92 / 42%);
+}
+
+.annotation-underline.is-selected {
+  border-width: 0 0 3px 0;
+}
+
+.annotation.needs-placement {
+  border-style: dashed;
+}
+
+/* The criterion is named on the box, so colour is never the only signal. */
+.annotation-tag {
+  position: absolute;
+  top: -8px;
+  left: -1px;
+  padding: 0 3px;
+  background: var(--paper);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* --- result panel --- */
+
+.panel {
+  padding: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.section-heading {
+  margin: 18px 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.score-total strong {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.score-total span {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.score-meta {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+}
+
+.score-meta dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.score-meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.flag-on {
+  color: var(--amber);
+  font-weight: 600;
+}
+.flag-off {
+  color: var(--green);
+}
+
+.review-reasons {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.notes {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.adjustments {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #faf7ee;
+  border: 1px solid #e5dcc4;
+}
+
+.adjustments summary {
+  cursor: pointer;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a6320;
+}
+
+.adjustments .count {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 4px;
+  background: #e5dcc4;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.adjustments ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+}
+
+.adjustments li {
+  margin-bottom: 5px;
+}
+
+.placement-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+}
+
+.placement-list li {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--line);
+}
+
+.placement-list button {
+  flex: none;
+  padding: 1px 5px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+/* --- criteria --- */
+
+.criteria {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.criterion {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  scroll-margin-top: 8px;
+}
+
+.criterion-red {
+  border-left-color: var(--red);
+}
+.criterion-amber {
+  border-left-color: var(--amber);
+}
+.criterion-green {
+  border-left-color: var(--green);
+}
+
+.criterion.is-selected {
+  background: #fffbe6;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 10%);
+}
+
+.criterion-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.criterion-id {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.criterion-mark {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-red {
+  color: var(--red);
+}
+.badge-amber {
+  color: var(--amber);
+}
+.badge-green {
+  color: var(--green);
+}
+
+.criterion-text {
+  margin: 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.evidence {
+  margin: 8px 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+
+.evidence-none {
+  border-left-style: dashed;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.feedback {
+  margin: 6px 0;
+}
+
+.correction {
+  margin: 6px 0;
+  padding: 6px 8px;
+  background: var(--ground);
+  font-size: 12.5px;
+}
+
+.criterion-foot {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.adjusted-flag {
+  padding: 0 4px;
+  border: 1px solid var(--amber);
+  border-radius: 3px;
+  color: var(--amber);
+}
+
+/* --- history --- */
+
+.history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history button {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  padding: 6px 4px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.history button.is-current {
+  background: #fffbe6;
+}
+
+.history-score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history .muted {
+  font-size: 11.5px;
 }

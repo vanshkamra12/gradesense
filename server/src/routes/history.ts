@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getResult, listHistory } from "../db.js";
+import { getResult, listHistory, readOriginal } from "../db.js";
 
 export const historyRouter = Router();
 
@@ -36,4 +36,17 @@ historyRouter.get("/api/results/:id", (req, res) => {
       })),
     },
   });
+});
+
+/** Serves the stored original so the browser can render its pages to canvas. */
+historyRouter.get("/api/results/:id/pdf", (req, res) => {
+  const stored = getResult(req.params.id);
+  if (!stored) {
+    res.status(404).json({ error: "no such result" });
+    return;
+  }
+
+  res.type("application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${stored.document.filename}"`);
+  res.send(readOriginal(stored.document.storagePath));
 });

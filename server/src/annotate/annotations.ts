@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { EnforcedCriterion, EnforcedResult } from "../grade/enforce.js";
 import type { ExtractedDocument } from "../pdf/extract.js";
-import { locateFigure, locateQuote, type Located, type Rect } from "./locate.js";
+import { locateFigure, locateQuote, UNPLACED_RESULT, type Located, type Rect } from "./locate.js";
 
 export type Annotation = {
   id: string;
@@ -21,7 +21,10 @@ export type Annotation = {
 
 function colourFor(criterion: EnforcedCriterion): Annotation["color"] {
   if (criterion.awarded >= criterion.maxMarks) return "green";
-  return criterion.findingType === "missing" ? "amber" : "red";
+  // Amber for a point attempted or absent, red for one asserted and wrong.
+  return criterion.findingType === "missing" || criterion.findingType === "partial"
+    ? "amber"
+    : "red";
 }
 
 /**
@@ -34,17 +37,20 @@ function colourFor(criterion: EnforcedCriterion): Annotation["color"] {
  *                  or the point is simply missing. Anchor it to the page's
  *                  figure and let a human confirm the position.
  * - "unverifiable" the model quoted something that is not in the answer, and
- *                  enforcement removed it. This gets no figure anchor and no
- *                  box. Placing it on the drawing would be inventing a position
- *                  for a quote that was already invented once — a second
- *                  fabrication dressed up as a location, and on screen it would
- *                  look exactly as authoritative as a real one.
+ *                  enforcement removed it. This gets an annotation with no
+ *                  rectangle, so the finding is listed as unplaced rather than
+ *                  disappearing — a teacher needs to know a finding exists that
+ *                  we could not position. What it does not get is a figure
+ *                  anchor: placing it on the drawing would be inventing a
+ *                  position for a quote that was already invented once, a
+ *                  second fabrication dressed up as a location, and on screen it
+ *                  would look exactly as authoritative as a real one.
  */
 function place(criterion: EnforcedCriterion, student: ExtractedDocument): Located | null {
   if (criterion.evidence !== null) {
     return locateQuote(student, criterion.evidence, criterion.page);
   }
-  if (criterion.evidenceStatus === "unverifiable") return null;
+  if (criterion.evidenceStatus === "unverifiable") return UNPLACED_RESULT;
   if (criterion.findingType === "missing" && criterion.awarded === 0) {
     // Nothing was written, so there is nothing on the page to point at.
     return null;
