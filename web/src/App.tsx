@@ -7,6 +7,7 @@ import { Uploader } from "./components/Uploader";
 import {
   createAnnotation,
   deleteAnnotation,
+  exportAnnotatedPdf,
   fetchHistory,
   fetchResult,
   patchAnnotation,
@@ -31,6 +32,7 @@ export default function App() {
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
   const [drawIntent, setDrawIntent] = useState<DrawIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const refreshHistory = useCallback(() => {
     fetchHistory().then(setHistory, (cause: unknown) => setError(String(cause)));
@@ -154,6 +156,23 @@ export default function App() {
             open(id);
           }}
         />
+        {current && (
+          <button
+            type="button"
+            className="draw-toggle"
+            disabled={exporting}
+            onClick={() => {
+              setExporting(true);
+              exportAnnotatedPdf(current.id, current.document.filename)
+                .catch((cause: unknown) =>
+                  setError(cause instanceof Error ? cause.message : String(cause)),
+                )
+                .finally(() => setExporting(false));
+            }}
+          >
+            {exporting ? "Building the PDF…" : "Export marked PDF"}
+          </button>
+        )}
         {current && (
           <button
             type="button"

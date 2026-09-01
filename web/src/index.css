@@ -40,6 +40,10 @@ body {
   letter-spacing: 0.02em;
 }
 
+.app-header .uploader {
+  margin-right: auto;
+}
+
 /* The page is the primary object, so it gets the room. */
 .app-body {
   display: grid;
@@ -523,7 +527,7 @@ body {
 }
 
 .draw-toggle {
-  margin-left: auto;
+  margin-left: 8px;
   padding: 4px 10px;
   background: var(--paper);
   border: 1px solid var(--line);

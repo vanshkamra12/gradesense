@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
 import { annotationsRouter } from "./routes/annotations.js";
+import { exportRouter } from "./routes/export.js";
 import { gradeRouter } from "./routes/grade.js";
 import { historyRouter } from "./routes/history.js";
 
@@ -23,6 +24,7 @@ app.get("/api/health", (_req, res) => {
 app.use(gradeRouter);
 app.use(historyRouter);
 app.use(annotationsRouter);
+app.use(exportRouter);
 
 app.listen(config.port, () => {
   console.log(`gradesense server listening on http://localhost:${config.port}`);

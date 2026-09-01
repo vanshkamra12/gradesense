@@ -697,3 +697,68 @@ moves — a local draft rect is drawn, and one request is sent on release. Escap
 cancels drawing and clears the selection; Delete removes the selected
 annotation, except while the caret is in the comment field, where both keys mean
 what they normally mean.
+
+## Annotated PDF export
+
+`annotate/export.ts` loads the stored original into a new pdf-lib document in
+memory, draws onto that copy, appends a summary, and returns fresh bytes. The
+file on disk is never opened for writing — it is mode `0444`, and its filename
+is the sha256 of its own contents, so a test can assert it is unchanged simply
+by re-hashing it and comparing to its name.
+
+### Coordinates carry over
+
+pdf-lib and pdf.js both place the origin at the bottom left of the page, so a
+rect measured during extraction is drawn with no conversion at all; the only
+adjustment is the MediaBox offset, which is zero for these fixtures but need not
+be in general.
+
+That is asserted rather than assumed. A test exports a single annotation with
+its criterion id stripped, so nothing but the rectangle is drawn, rasterises the
+page at 1x, finds the bounding box of the coloured pixels, and checks all four
+edges against the rect flipped into image space. Every edge lands within 3px. A
+second test extracts the text of the exported page, takes the items falling
+inside the drawn rectangle, and asserts they are the words the criterion quoted
+— so the box is proved to be over the right text, not merely at plausible
+coordinates.
+
+### Marking without covering the answer
+
+The criterion id goes in the **left** margin and the correction in the **right**
+margin, neither over the text. Both were originally drawn against the box: the
+id above it, which covered the first word of the line above, and the correction
+below it, which landed on the next line of the student's answer. A marked script
+that hides the thing being marked is worse than an unmarked one.
+
+The right margin is narrow, so corrections are set at 5.2pt, wrapped to it, and
+cut after nine lines — the full text is always on the summary page. Only the
+first box of a criterion is tagged and annotated, so a quote spanning three
+lines is not labelled three times.
+
+The standard 14 fonts encode WinAnsi, which covers Latin-1 plus the dashes,
+curly quotes and ellipsis in 0x80–0x9F. The rupee sign and subscript digits in
+Q3 fall outside it and throw at draw time, so those two are transliterated —
+"Rs." and plain digits — and nothing else is touched. An earlier version also
+rewrote em dashes as `--`, which was unnecessary and looked wrong in the title.
+
+### The summary
+
+A flowing report that adds pages as it fills: total, confidence, review flag and
+its reasons, the adjustments under "what the system corrected about itself",
+findings that could not be placed, then every criterion with its wording, mark,
+finding type, confidence, evidence, feedback and correction.
+
+Unplaced findings appear here under their own heading. Leaving them out of the
+export would reintroduce, through the back door, the failure the unplaced list
+exists to prevent — the export is the artefact that leaves the system, and a
+finding that vanishes from it is a finding nobody will ever see.
+
+The summary is written to stand on its own away from the app, because it is what
+gets submitted as an example of a marked paper.
+
+### The deliverable
+
+`npm run export:sample --workspace server` grades a fixture and writes
+`outputs/annotated_student_answer_A.pdf`. It is a script rather than a one-off
+so the committed file can be regenerated instead of being an artefact nobody can
+rebuild.

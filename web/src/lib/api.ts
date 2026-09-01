@@ -148,3 +148,22 @@ export async function deleteAnnotation(resultId: string, annotationId: string): 
   });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
 }
+
+/**
+ * Asks the server for an annotated copy and hands it to the browser to save.
+ * The export always reflects the annotations as they are now.
+ */
+export async function exportAnnotatedPdf(resultId: string, filename: string): Promise<void> {
+  const response = await fetch(`/api/results/${resultId}/export`, { method: "POST" });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? `${response.status} ${response.statusText}`);
+  }
+
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename.replace(/\.pdf$/i, "") + "-marked.pdf";
+  link.click();
+  URL.revokeObjectURL(url);
+}
