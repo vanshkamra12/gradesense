@@ -1,4 +1,4 @@
-import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument, OPS, VerbosityLevel } from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PDFPageProxy } from "pdfjs-dist";
 
 /** One text run as pdf.js reports it, in PDF user space (origin bottom-left). */
@@ -122,7 +122,11 @@ async function extractImageBoxes(page: PDFPageProxy, pageNumber: number): Promis
 export async function extractPdf(data: Uint8Array): Promise<ExtractedDocument> {
   // pdf.js takes ownership of the buffer it is given, and the caller may still
   // need theirs — the uploaded bytes get rasterised and exported later.
-  const loadingTask = getDocument({ data: new Uint8Array(data) });
+  // Font quirks in the fixtures raise warnings that say nothing actionable.
+  const loadingTask = getDocument({
+    data: new Uint8Array(data),
+    verbosity: VerbosityLevel.ERRORS,
+  });
   const doc = await loadingTask.promise;
 
   const pages: ExtractedPage[] = [];

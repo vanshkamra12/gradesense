@@ -139,3 +139,50 @@ extraction, so the rendered page is the only place the model can observe it.
 A test measures the share of non-white pixels rather than only checking the PNG
 header, because a blank or fully transparent canvas still encodes to a
 structurally valid PNG of exactly the right dimensions.
+
+## Rubric parsing
+
+`server/src/grade/rubric.ts` turns `fixtures/model_answer.pdf` into the typed
+rubric. It is parsed deterministically, with no model call: the marking scheme
+is fixed input, and a rubric that came out differently between runs would make
+every downstream assertion flaky.
+
+The document turned out to be cleanly structured, so the parser is line-based.
+Each question is a section introduced by `Qn — Subject`, containing a
+`Model Answer — 5 marks` heading, prose, a `Marking rubric` table between its
+`Criterion / Marks` header and its `Total` row, and — under Q1 and Q2 only — an
+`Important grading guidance` block that runs to the end of the section.
+
+Two details are not obvious from reading the rendered page. Rubric rows wrap:
+a long criterion runs onto a second line and only the final line carries the
+mark, so rows are accumulated until a line ends in a digit. And the parser
+cross-checks itself — the marks declared in the heading, the table's `Total`
+row, and the sum of the individual criteria must all agree, or it throws rather
+than returning a rubric with the wrong number of criteria.
+
+### Guidance is first-class data
+
+`guidance` holds the verbatim lines of the block, never a summary and never
+appended onto criterion text. At the prompt-building stage it goes in as-is.
+
+This matters more than the criterion wording does. The three sentences that
+decide whether grading is correct all live in the guidance rather than in the
+rubric table: that a voltmeter in series is a substantive error, that wording
+need not match the model answer, and that a student may reach the opposite
+conclusion and still score 5/5. The last of those is what stops the grader
+penalising the Q2 position in Script A, which the error key calls the single
+most important control in the set. A test asserts each sentence survives
+parsing intact.
+
+Because the lines are verbatim, they carry the PDF's hard wrapping — a sentence
+may be split across two entries. They are joined with newlines for the prompt
+rather than being unwrapped, since unwrapping is a normalisation and the whole
+point of this field is that nothing rewords it.
+
+### Model answer prose
+
+The prose is captured separately, as `modelAnswers`, and never merged into the
+rubric. The prompt needs it as reference material, but the rubric is what marks
+are awarded against, and keeping them in separate fields is what makes it
+possible to label them differently in the prompt. Grading by similarity to the
+model answer is the failure this whole separation exists to prevent.

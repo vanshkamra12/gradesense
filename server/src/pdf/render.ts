@@ -1,5 +1,5 @@
 import { createCanvas } from "@napi-rs/canvas";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument, VerbosityLevel } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 /** The model has to read two hand-drawn diagrams, so render well above 1x. */
 export const DEFAULT_RENDER_SCALE = 2;
@@ -17,7 +17,10 @@ export async function renderPdfPages(
   data: Uint8Array,
   scale: number = DEFAULT_RENDER_SCALE,
 ): Promise<RenderedPage[]> {
-  const loadingTask = getDocument({ data: new Uint8Array(data) });
+  const loadingTask = getDocument({
+    data: new Uint8Array(data),
+    verbosity: VerbosityLevel.ERRORS,
+  });
   const doc = await loadingTask.promise;
   const rendered: RenderedPage[] = [];
 
