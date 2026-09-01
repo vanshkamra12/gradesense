@@ -15,7 +15,7 @@ export const config = {
   gradeProvider: process.env.GRADE_PROVIDER ?? "mock",
   mockMode: process.env.MOCK_MODE ?? "valid",
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
-  geminiModel: process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+  geminiModel: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
   // Overridable so the provider can be pointed at a local stub and verified
   // without network access. Empty means the real Gemini endpoint.
   geminiBaseUrl: process.env.GEMINI_BASE_URL ?? "",
