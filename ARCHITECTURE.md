@@ -244,3 +244,53 @@ with the real provider and compare against `fixtures/error_key_script_a.md`.
 That check belongs in an integration test that skips cleanly when
 `GEMINI_API_KEY` is absent, kept apart from the unit suite, so that the suite
 never appears to prove more than it does.
+
+## Prompt, schema and pipeline
+
+`prompt.ts` assembles the prompt, `schema.ts` validates what comes back, and
+`pipeline.ts` runs the sequence. The provider sits between them and knows about
+none of it.
+
+### Section order
+
+Task framing, then the marking scheme with its guidance, then the model answer
+as reference, then the student's extracted text, then the page images, then the
+output contract. The student's work comes after the marking material so that the
+criteria frame the reading rather than being applied to an impression already
+formed, and the output contract comes last so it is the most recent instruction.
+
+The images have to sit between the student's text and the output contract, but
+the provider interface takes a single prompt string. So the prompt contains a
+`<<<PAGE_IMAGES>>>` marker line at that position; the Gemini provider splits on
+it and interleaves the image parts, and the mock ignores it. That keeps the
+ordering real rather than nominal without widening the interface.
+
+### What the prompt does and does not say
+
+The guidance blocks go in verbatim under a heading that names them as
+authoritative and says they override the model's own judgement. The model answer
+goes in under `MODEL ANSWER — REFERENCE ONLY` with an explicit statement that
+similarity to it is not evidence of correctness, that difference from it is not
+evidence of error, and that a student reaching the opposite conclusion can earn
+full marks. That paragraph is the single most important instruction in the file.
+
+The prompt never names the errors in any particular script. A test asserts that
+the instruction sections contain no subject terms at all — no "voltmeter", no
+"equilibrium", no criterion IDs. The marking scheme and the student's text
+naturally contain such words, and must; our own prose must not, or a passing
+grade run would prove only that the model can follow a hint.
+
+The model is told not to reason about a total, not to return one, and not to
+report positions of any kind. Coordinates are computed from the quote by
+`locate.ts`; a model asked for a bounding box will invent one.
+
+### Validation and repair
+
+`parseModelOutput` strips markdown fences defensively — the prompt forbids them
+and models emit them anyway — then parses and validates, reporting a JSON
+failure distinctly from a schema failure. `pipeline.ts` retries exactly once,
+appending a correction section that quotes the specific reason the last response
+was unusable, and then fails with a structured error carrying every raw attempt.
+
+A failed run returns `{ ok: false, error }` and never a partial result. There is
+no path that returns some criteria and an error.

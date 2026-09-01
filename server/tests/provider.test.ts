@@ -6,6 +6,8 @@ import { extractPdf } from "../src/pdf/extract.js";
 import { MOCK_MODES, mockProvider, type MockMode } from "../src/grade/provider.js";
 import { loadRubric } from "../src/grade/rubric.js";
 
+// A fresh instance per call. "malformed" counts calls, and a shared instance
+// would leak that counter between tests as order-dependent flakiness.
 const call = (mode: MockMode) => mockProvider(mode).grade({ prompt: "", images: [] });
 
 /** Whitespace-insensitive containment, matching how evidence is verified. */
