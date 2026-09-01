@@ -27,7 +27,7 @@ if (!isMockMode(mode)) {
 
 const outcome = await gradeDocument(new Uint8Array(fs.readFileSync(file)), mockProvider(mode));
 if (!outcome.ok) {
-  console.error(`Grading failed: ${outcome.error.code} — ${outcome.error.message}`);
+  console.error(`Grading failed: ${outcome.error.code} - ${outcome.error.message}`);
   process.exit(1);
 }
 
@@ -69,13 +69,13 @@ for (const criterion of result.criteria) {
       quote !== null
         ? JSON.stringify(quote)
         : criterion.evidenceStatus === "unverifiable"
-          ? "(removed — the model quoted text that is not in the answer)"
-          : "(none offered — finding is about a drawing or a missing point)"
+          ? "(removed - the model quoted text that is not in the answer)"
+          : "(none offered - finding is about a drawing or a missing point)"
     }`,
   );
 
   if (found.rects.length === 0) {
-    console.log("  rects: none — no box is drawn and the teacher places it by hand");
+    console.log("  rects: none - no box is drawn and the teacher places it by hand");
   } else {
     console.log(`  page ${found.page}, ${found.rects.length} rect(s):`);
     for (const r of found.rects) console.log(`    ${rect(r)}`);

@@ -8,7 +8,7 @@ import type { GradeResponse } from "./schema.js";
 /**
  * Below this many non-whitespace characters of the student's own writing, the
  * sheet is not worth sending to a model. It is a backstop rather than the
- * primary signal — what decides the question is how much the student
+ * primary signal - what decides the question is how much the student
  * contributed once the pre-printed scaffolding is discounted.
  */
 export const MIN_STUDENT_CHARS = 40;
@@ -28,7 +28,7 @@ const normaliseLine = (line: string) => line.replace(/\s+/g, " ").trim().toLower
 /**
  * The answer sheet is printed from the question paper, so its question headings
  * are on the page before the student writes anything. Counting them as the
- * student's work makes a blank sheet look answered — the blank fixture carries
+ * student's work makes a blank sheet look answered - the blank fixture carries
  * 53 characters of headings, comfortably past any plain character threshold.
  */
 export function studentContribution(
@@ -55,7 +55,7 @@ export function assessAnswerSheet(
     return { kind: "gradeable", contributedChars, imageCount };
   }
   // Little text but a drawing on the page: the answer may be handwritten, so it
-  // still has to be graded — just not trusted as far.
+  // still has to be graded - just not trusted as far.
   return {
     kind: imageCount > 0 ? "unclear" : "blank",
     contributedChars,
@@ -93,7 +93,7 @@ export function blankResponse(rubric: Rubric): GradeResponse {
       reasoning: "The answer sheet is blank.",
     })),
     overallNotes:
-      "This answer sheet is blank — it carries only the pre-printed question headings and no " +
+      "This answer sheet is blank - it carries only the pre-printed question headings and no " +
       "written answer or drawing. Every criterion scores zero. No grading model was called.",
   };
 }

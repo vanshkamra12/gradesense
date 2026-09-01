@@ -1,4 +1,4 @@
-# Script A — Error Key
+# Script A - Error Key
 
 **Script:** `student_answer_A.pdf`
 **Type:** Partially correct answer (development fixture)
@@ -10,14 +10,14 @@ marks in the table at the end.
 
 Errors are split into two kinds:
 
-- **Scoring errors** — substantive mistakes that should cost a rubric mark.
-- **Control errors** — surface mistakes (spelling, grammar, layout) that should
+- **Scoring errors** - substantive mistakes that should cost a rubric mark.
+- **Control errors** - surface mistakes (spelling, grammar, layout) that should
   **not** cost a rubric mark. These exist to check that the grader does not
   over-penalise presentation.
 
 ---
 
-## A-Q1-1 — Voltmeter connected in series
+## A-Q1-1 - Voltmeter connected in series
 
 - **Type:** Scoring
 - **Location:** Q1, paragraph 3, and in the hand-drawn circuit diagram
@@ -26,14 +26,14 @@ Errors are split into two kinds:
 - **Correct version:** The voltmeter must be connected in parallel across the
   bulb, because it measures the potential difference between the two ends of
   the bulb.
-- **Rubric point:** Q1 Criterion 2 — correct placement of ammeter in series and
+- **Rubric point:** Q1 Criterion 2 - correct placement of ammeter in series and
   voltmeter in parallel across the bulb
 - **Expected mark:** 0 / 1
 - **Note:** The marking scheme names this error explicitly as substantive. The
   ammeter placement is correct, but the criterion covers both instruments as a
   single mark, so the mark is not awarded.
 
-## A-Q1-2 — Resistance and current relationship inverted
+## A-Q1-2 - Resistance and current relationship inverted
 
 - **Type:** Scoring
 - **Location:** Q1, final paragraph
@@ -43,10 +43,10 @@ Errors are split into two kinds:
 - **Correct version:** With the battery voltage constant, increasing the
   resistance decreases the current (V = IR). The bulb would grow dimmer, not
   brighter.
-- **Rubric point:** Q1 Criterion 4 — relationship between resistance and current
+- **Rubric point:** Q1 Criterion 4 - relationship between resistance and current
 - **Expected mark:** 0 / 1
 
-## A-Q1-3 — Spelling errors
+## A-Q1-3 - Spelling errors
 
 - **Type:** Control
 - **Location:** Q1, throughout
@@ -59,21 +59,21 @@ Errors are split into two kinds:
 
 ---
 
-## A-Q2-1 — Conclusion contradicts the argument
+## A-Q2-1 - Conclusion contradicts the argument
 
 - **Type:** Scoring
 - **Location:** Q2, final paragraph
 - **Student claim:** After arguing throughout that technology makes students
   dependent on easy answers, the answer concludes that technology is making
   learning much better and every student should use it as much as possible.
-- **Correct version:** The conclusion should follow from the body — for example,
+- **Correct version:** The conclusion should follow from the body - for example,
   that technology harms learning when used as a substitute for thinking, and so
   its use needs to be deliberate rather than maximal.
-- **Rubric point:** Q2 Criterion 5 — coherent conclusion that follows from the
+- **Rubric point:** Q2 Criterion 5 - coherent conclusion that follows from the
   discussion
 - **Expected mark:** 0 / 1
 
-## A-Q2-2 — Position differs from the model answer
+## A-Q2-2 - Position differs from the model answer
 
 - **Type:** Control
 - **Location:** Q2, throughout
@@ -89,7 +89,7 @@ Errors are split into two kinds:
 - **Note:** This is the single most important control in the set. A grader built
   on similarity to the model answer will wrongly penalise this and score Q2 low.
 
-## A-Q2-3 — Grammar errors
+## A-Q2-3 - Grammar errors
 
 - **Type:** Control
 - **Location:** Q2, paragraph 2
@@ -101,17 +101,17 @@ Errors are split into two kinds:
 
 ---
 
-## A-Q3-1 — Equilibrium stated incorrectly
+## A-Q3-1 - Equilibrium stated incorrectly
 
 - **Type:** Scoring
 - **Location:** Q3 part (b), and the label written on the hand-drawn graph
 - **Student claim:** Equilibrium is at ₹40 and 40 units.
 - **Correct version:** Equilibrium is at ₹30 and 60 units, where quantity
   demanded equals quantity supplied.
-- **Rubric point:** Q3 Criterion 2 — correctly identifies the equilibrium and
+- **Rubric point:** Q3 Criterion 2 - correctly identifies the equilibrium and
   explains why it is equilibrium
 - **Expected mark:** 0 / 1
-- **Note:** The curves are drawn by hand and cross near ₹30 / 60 units — close
+- **Note:** The curves are drawn by hand and cross near ₹30 / 60 units - close
   to the correct equilibrium, but not pixel-exact. The written claim of ₹40 /
   40 units does not match the drawing. Only the student's stated interpretation
   is wrong. A grader that reads the written figure without reconciling it
@@ -120,7 +120,7 @@ Errors are split into two kinds:
   imprecision is deliberate and should not by itself cost a mark under
   Criterion 1.
 
-## A-Q3-2 — Shortage and surplus reversed
+## A-Q3-2 - Shortage and surplus reversed
 
 - **Type:** Scoring
 - **Location:** Q3 part (c)
@@ -129,10 +129,10 @@ Errors are split into two kinds:
 - **Correct version:** Below the equilibrium price, quantity demanded exceeds
   quantity supplied, creating a shortage. Above it, quantity supplied exceeds
   quantity demanded, creating a surplus.
-- **Rubric point:** Q3 Criterion 3 — shortage below equilibrium, surplus above
+- **Rubric point:** Q3 Criterion 3 - shortage below equilibrium, surplus above
 - **Expected mark:** 0 / 1
 
-## A-Q3-3 — New equilibrium after a supply shift stated incorrectly
+## A-Q3-3 - New equilibrium after a supply shift stated incorrectly
 
 - **Type:** Scoring
 - **Location:** Q3, final line
@@ -140,15 +140,15 @@ Errors are split into two kinds:
   at a lower price and a lower quantity.
 - **Correct version:** A leftward shift in supply, with demand unchanged, gives
   a higher equilibrium price and a lower equilibrium quantity.
-- **Rubric point:** Q3 Criterion 5 — resulting tendency toward higher price and
+- **Rubric point:** Q3 Criterion 5 - resulting tendency toward higher price and
   lower quantity
 - **Expected mark:** 0 / 1
 - **Note:** The quantity half of the claim is right and the price half is wrong.
   Useful for checking that partial correctness inside a single criterion does
-  not produce a fractional mark — each criterion is worth exactly 1 and must
+  not produce a fractional mark - each criterion is worth exactly 1 and must
   resolve to 0 or 1.
 
-## A-Q3-4 — Sub-parts written out of order
+## A-Q3-4 - Sub-parts written out of order
 
 - **Type:** Control
 - **Location:** Q3, structure of the whole answer
@@ -162,7 +162,7 @@ Errors are split into two kinds:
   rather than by where it sits on the page, and that struck-out text is not
   read as the student's answer.
 
-## A-Q3-5 — Spelling error
+## A-Q3-5 - Spelling error
 
 - **Type:** Control
 - **Location:** Q3, parts (b), (c) and (d)
@@ -187,10 +187,10 @@ Errors are split into two kinds:
 Two items are genuinely arguable and are reasonable candidates for a low
 confidence score and a human-review flag:
 
-- **Q1 Criterion 5** — the diagram is labelled and shows current direction, but
+- **Q1 Criterion 5** - the diagram is labelled and shows current direction, but
   it also contains the miswired voltmeter, so "clear and logically structured"
   is defensible either way.
-- **Q3 Criterion 5** — half the claim is correct (lower quantity) and half is
+- **Q3 Criterion 5** - half the claim is correct (lower quantity) and half is
   wrong (lower price).
 
 A grader that flags these two while remaining confident about the clear-cut

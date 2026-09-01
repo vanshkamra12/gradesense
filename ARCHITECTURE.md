@@ -27,9 +27,9 @@ in the prompt:
 
 | rule | enforced in |
 |---|---|
-| A criterion's mark can never exceed its maximum | `grade/enforce.ts` — clamped against the parsed rubric |
-| The total is the sum of the criteria | `grade/enforce.ts` — recomputed; a model-supplied total is reported and discarded |
-| Every finding carries evidence, or is marked missing | `grade/enforce.ts` — quotes verified against the extracted text |
+| A criterion's mark can never exceed its maximum | `grade/enforce.ts` - clamped against the parsed rubric |
+| The total is the sum of the criteria | `grade/enforce.ts` - recomputed; a model-supplied total is reported and discarded |
+| Every finding carries evidence, or is marked missing | `grade/enforce.ts` - quotes verified against the extracted text |
 | The uploaded PDF is never modified | `db.ts` stores it `0444` under its own sha256; `annotate/export.ts` writes a new file |
 | When uncertain, the system says so | confidence and `needsHumanReview` on every result, with reasons in plain language |
 
@@ -46,7 +46,7 @@ upload PDF
   |
   +-- grade/prompt.ts    marking scheme + guidance + model answer as reference
   |                      + student text, then page images, then the output
-  |                      contract — as an ordered PromptPart[]
+  |                      contract - as an ordered PromptPart[]
   |
   +-- grade/provider.ts  mock or Gemini, behind one interface
   |
@@ -87,7 +87,7 @@ that was made once and should not be quietly undone.
 ## Workspaces
 
 An npm workspace root with two packages, `server` and `web`. One `npm install`
-at the root installs both. There is no shared package — the two sides exchange
+at the root installs both. There is no shared package - the two sides exchange
 JSON over HTTP and nothing else, so a third workspace for shared types would be
 an abstraction with one consumer on each end.
 
@@ -99,7 +99,7 @@ under plain `node dist/index.js` with no loader or bundler. The cost is writing
 convention. `tsx` runs the same source directly in development with watch mode.
 
 Environment variables are loaded by Node itself via `--env-file-if-exists`, so
-there is no dotenv dependency and a missing `.env` is not an error — the
+there is no dotenv dependency and a missing `.env` is not an error - the
 defaults in `config.ts` are enough to run against the mock provider.
 
 `server/src/config.ts` is the only place that reads `process.env`. Everything
@@ -124,7 +124,7 @@ export always produces a new file.
 
 A marking run has three inputs, and all three are uploadable: the question
 paper, the marking scheme, and the student's answer. Only the answer is
-required — the bundled fixtures stand in for the other two, which is what lets
+required - the bundled fixtures stand in for the other two, which is what lets
 the app be demonstrated with a single file.
 
 They are sent separately rather than as one multipart request. The question
@@ -136,7 +136,7 @@ of a multipart parser for what is, at most, three files.
 ### An uploaded marking scheme is never silently ignored
 
 If an uploaded scheme cannot be parsed, the run **fails** with
-`rubric_unreadable` and a message naming what was missing — "criteria sum to 4
+`rubric_unreadable` and a message naming what was missing - "criteria sum to 4
 but the table totals 5", "no Marking rubric heading". It does not fall back to
 the bundled scheme.
 
@@ -152,7 +152,7 @@ scaffolding lines for the blank-answer guard, so a blank sheet is judged against
 the paper it was actually printed from.
 
 All three documents are stored with the run, and a reopened result names which
-scheme and paper it was marked against — "uploaded" or "bundled" — because a
+scheme and paper it was marked against - "uploaded" or "bundled" - because a
 mark means nothing without knowing what it was measured by.
 
 ## PDF extraction
@@ -174,7 +174,7 @@ string, as `charStart`.
 
 That offset is the load-bearing part of this module. `locate.ts` matches an
 evidence quote against the page text, gets back a character range, and has to
-turn that range into rectangles — which it can only do by finding the items
+turn that range into rectangles - which it can only do by finding the items
 whose `[charStart, charStart + text.length)` interval overlaps the range. A test
 asserts the round trip for every item of every fixture page, because an
 off-by-one here would put every annotation in the wrong place with nothing
@@ -186,7 +186,7 @@ and only the joined page text spells the word the student wrote.
 
 This is the reason `locate.ts` must match evidence quotes against the joined
 page text and never against an item's own text. A quote containing any of the
-words the rubric actually cares about — "difference", "flow", "benefits" — would
+words the rubric actually cares about - "difference", "flow", "benefits" - would
 never match a single item, because no single item holds the whole word. Matching
 runs on the page text; only afterwards does the matched character range get
 mapped back to items through `charStart`, which is how a quote spanning a
@@ -196,8 +196,8 @@ ligature split still resolves to every box it covers.
 
 An image XObject always paints into the unit square, so where it lands is
 entirely determined by the transform in effect when it is painted. The extractor
-walks the page's operator list keeping a transform stack — `save`, `restore`,
-`transform`, and the form XObject begin/end pair — and maps the unit square
+walks the page's operator list keeping a transform stack - `save`, `restore`,
+`transform`, and the form XObject begin/end pair - and maps the unit square
 through the current matrix at each paint operation. Boxes under 4pt on a side
 are dropped as rule lines and other artefacts rather than figures.
 
@@ -209,7 +209,7 @@ The largest-image rule is an assumption, not a guarantee. It holds for the
 fixtures, where each page carries exactly one image and that image is the
 hand-drawn diagram. On an answer sheet with a printed logo or a header rule,
 largest-by-area would still pick the diagram, since a diagram is much bigger
-than page furniture — but nothing enforces that, and a scanned page delivered as
+than page furniture - but nothing enforces that, and a scanned page delivered as
 one full-page image would defeat it entirely. The fallback is deliberately
 conservative for this reason: a figure anchor is marked `needsPlacement`, so the
 teacher confirms the position rather than trusting the guess.
@@ -226,8 +226,8 @@ model to ignore struck-out text rather than the extractor filtering it out.
 ## Page rasterisation
 
 `server/src/pdf/render.ts` renders each page to a PNG at 2x. Two of the three
-questions cannot be graded from text at all — Q1 needs the hand-drawn circuit
-and Q3 needs the supply/demand graph — so these images are what let the model
+questions cannot be graded from text at all - Q1 needs the hand-drawn circuit
+and Q3 needs the supply/demand graph - so these images are what let the model
 see the parts of the answer that extraction cannot reach.
 
 pdf.js 6 ships a `NodeCanvasFactory` built on `@napi-rs/canvas`, the same canvas
@@ -237,11 +237,11 @@ size and hand it to `page.render`.
 
 The canvas is filled white before rendering. A PDF page has no background of its
 own, and without that fill the PNG is transparent, which composites to black
-wherever it is later drawn — including in whatever the model sees.
+wherever it is later drawn - including in whatever the model sees.
 
 At 2x a fixture page is 1192 x 1684 px and around 500 KB. That is enough to read
 the pencil labels on both diagrams, and enough to see that the false start in Q3
-part (b) is struck through — the strike is a drawn line, invisible to text
+part (b) is struck through - the strike is a drawn line, invisible to text
 extraction, so the rendered page is the only place the model can observe it.
 
 A test measures the share of non-white pixels rather than only checking the PNG
@@ -256,15 +256,15 @@ is fixed input, and a rubric that came out differently between runs would make
 every downstream assertion flaky.
 
 The document turned out to be cleanly structured, so the parser is line-based.
-Each question is a section introduced by `Qn — Subject`, containing a
+Each question is a section introduced by `Qn - Subject`, containing a
 `Model Answer — 5 marks` heading, prose, a `Marking rubric` table between its
-`Criterion / Marks` header and its `Total` row, and — under Q1 and Q2 only — an
+`Criterion / Marks` header and its `Total` row, and - under Q1 and Q2 only - an
 `Important grading guidance` block that runs to the end of the section.
 
 Two details are not obvious from reading the rendered page. Rubric rows wrap:
 a long criterion runs onto a second line and only the final line carries the
 mark, so rows are accumulated until a line ends in a digit. And the parser
-cross-checks itself — the marks declared in the heading, the table's `Total`
+cross-checks itself - the marks declared in the heading, the table's `Total`
 row, and the sum of the individual criteria must all agree, or it throws rather
 than returning a rubric with the wrong number of criteria.
 
@@ -282,7 +282,7 @@ penalising the Q2 position in Script A, which the error key calls the single
 most important control in the set. A test asserts each sentence survives
 parsing intact.
 
-Because the lines are verbatim, they carry the PDF's hard wrapping — a sentence
+Because the lines are verbatim, they carry the PDF's hard wrapping - a sentence
 may be split across two entries. They are joined with newlines for the prompt
 rather than being unwrapped, since unwrapping is a normalisation and the whole
 point of this field is that nothing rewords it.
@@ -299,7 +299,7 @@ model answer is the failure this whole separation exists to prevent.
 
 `server/src/grade/provider.ts` holds the `GradeProvider` interface and the mock.
 A provider takes a prompt and page images and returns the model's raw string.
-It does no parsing, no validation and no enforcement — those belong to code that
+It does no parsing, no validation and no enforcement - those belong to code that
 must behave identically whichever provider produced the string.
 
 `GRADE_PROVIDER` selects the implementation and defaults to `mock`, so the test
@@ -329,7 +329,7 @@ Criterion IDs come from `loadRubric()` rather than string literals, so a change
 to rubric parsing moves the mock with it or fails loudly. And evidence quotes
 are lifted from the real extracted text of `student_answer_A.pdf` at runtime,
 by matching an anchor phrase whitespace-insensitively and expanding to the
-surrounding sentence — never written out by hand. If an anchor stops matching,
+surrounding sentence - never written out by hand. If an anchor stops matching,
 the mock throws rather than emitting a quote that no longer exists. This is what
 lets `locate.ts` be tested end to end against realistic input, misspellings and
 mid-sentence line breaks included.
@@ -368,8 +368,8 @@ criteria frame the reading rather than being applied to an impression already
 formed, and the output contract comes last so it is the most recent instruction.
 
 The images have to sit between the student's text and the output contract, so
-`buildPromptParts` returns an ordered `PromptPart[]` — a discriminated union of
-`{ kind: "text" }` and `{ kind: "image" }` — rather than a string, and
+`buildPromptParts` returns an ordered `PromptPart[]` - a discriminated union of
+`{ kind: "text" }` and `{ kind: "image" }` - rather than a string, and
 `GradeProvider.grade` takes `{ parts }`. Gemini maps the array onto its own
 parts; the mock ignores the content.
 
@@ -383,13 +383,13 @@ makes the ordering the type's business, which is where it belongs.
 
 The guidance blocks go in verbatim under a heading that names them as
 authoritative and says they override the model's own judgement. The model answer
-goes in under `MODEL ANSWER — REFERENCE ONLY` with an explicit statement that
+goes in under `MODEL ANSWER - REFERENCE ONLY` with an explicit statement that
 similarity to it is not evidence of correctness, that difference from it is not
 evidence of error, and that a student reaching the opposite conclusion can earn
 full marks. That paragraph is the single most important instruction in the file.
 
 The prompt never names the errors in any particular script. A test asserts that
-the instruction sections contain no subject terms at all — no "voltmeter", no
+the instruction sections contain no subject terms at all - no "voltmeter", no
 "equilibrium", no criterion IDs. The marking scheme and the student's text
 naturally contain such words, and must; our own prose must not, or a passing
 grade run would prove only that the model can follow a hint.
@@ -400,8 +400,8 @@ report positions of any kind. Coordinates are computed from the quote by
 
 ### Validation and repair
 
-`parseModelOutput` strips markdown fences defensively — the prompt forbids them
-and models emit them anyway — then parses and validates, reporting a JSON
+`parseModelOutput` strips markdown fences defensively - the prompt forbids them
+and models emit them anyway - then parses and validates, reporting a JSON
 failure distinctly from a schema failure. `pipeline.ts` retries exactly once,
 appending one further text part that quotes the specific reason the last response
 was unusable, and then fails with a structured error carrying every raw attempt.
@@ -441,15 +441,15 @@ a finding about a diagram, which has no text to quote.
 `adjustments` is the audit trail, and it is written for a teacher rather than
 for a log. Every line names the criterion and says what changed:
 
-    Q1.C1: awarded 2 of a maximum 1 — clamped to 1.
-    Q2.C3: the model returned no result for this criterion — recorded as 0 of 1,
+    Q1.C1: awarded 2 of a maximum 1 - clamped to 1.
+    Q2.C3: the model returned no result for this criterion - recorded as 0 of 1,
            missing, with no confidence.
     Q1.C2: the quoted evidence does not appear anywhere in the student's answer
-           — the quote was removed as unverifiable and confidence lowered from
+           - the quote was removed as unverifiable and confidence lowered from
            0.95 to 0.2.
-    Q4.C1: not a criterion in the marking scheme — the model's result for it was
+    Q4.C1: not a criterion in the marking scheme - the model's result for it was
            discarded.
-    The model returned a total of 99. Totals are never taken from the model —
+    The model returned a total of 99. Totals are never taken from the model -
     recomputed from the criterion marks as 8 of 15.
 
 Different failures read differently on purpose. A criterion the model never
@@ -466,7 +466,7 @@ what was discarded, then what applies to the response as a whole.
 Overall confidence is the mean of the per-criterion values, less 0.05 for each
 criterion that had to be adjusted and 0.1 if the response needed repairing.
 `needsHumanReview` is set when confidence falls below 0.7, when any criterion
-was adjusted, or when the response was repaired — and `reviewReasons` says which
+was adjusted, or when the response was repaired - and `reviewReasons` says which
 of those it was, in the same plain language as the adjustments.
 
 A high-confidence result with one clamped criterion still goes to review. The
@@ -491,7 +491,7 @@ non-whitespace characters of headings alone, comfortably past the spec's ~40
 threshold, and a guard built on that count would send an empty page to the
 model.
 
-So the guard measures the student's **contribution** — the page text with every
+So the guard measures the student's **contribution** - the page text with every
 line that also appears in the question paper removed, matched on collapsed
 whitespace and lowercased. On the blank fixture that leaves exactly zero
 characters. The character threshold stays as a backstop for a sheet with a
@@ -504,24 +504,24 @@ only on our fixture.
 ### The two cases
 
 A sheet with almost no contributed text and **no images** is blank. It returns a
-zero result immediately, with confidence 1 — an empty page is not an ambiguous
-one, and saying "we are unsure" about it would be false — and no review flag.
+zero result immediately, with confidence 1 - an empty page is not an ambiguous
+one, and saying "we are unsure" about it would be false - and no review flag.
 The provider is never called, which a test enforces with a provider that throws
 if it is reached.
 
 A sheet with almost no contributed text but **images present** is unclear, not
 blank: the answer is probably handwritten. `fixtures/student_answer_F.pdf` is
-exactly this — a real handwritten page on ruled notebook paper, scanned as one
+exactly this - a real handwritten page on ruled notebook paper, scanned as one
 full-page image with zero extractable text. It is the fixture that proves the
 system declines to fake confidence about handwriting rather than pretending to
 have read the page: it is graded, but the result says plainly that almost no
 machine-readable text was found and that a human has to confirm it.
 
 It is also the case that defeats the largest-image heuristic noted above, since
-the whole page is one image — which is why a figure anchor is only ever a
+the whole page is one image - which is why a figure anchor is only ever a
 suggestion a teacher confirms. It is graded normally, but overall
 confidence is capped at 0.5 and the result is flagged for review with a reason
-naming the actual cause — how many characters were found, how many page images
+naming the actual cause - how many characters were found, how many page images
 there are, and that the marking may rest on the images alone. That reason is
 listed before the generic threshold message, because it says why rather than
 what.
@@ -536,7 +536,7 @@ invariants.
 This costs a few lines and buys the guarantee that there is only one result
 shape in the system. A blank answer that took a shortcut around enforcement
 would eventually reach persistence, or the annotation layer, or the exporter,
-carrying a subtly different object — and it would fail there rather than here.
+carrying a subtly different object - and it would fail there rather than here.
 A test asserts the blank and marked results have identical key sets, at the
 result level and per criterion.
 
@@ -548,8 +548,8 @@ involved: the model supplies a quote, and this file decides where that quote is.
 ### Matching against joined page text
 
 Matching runs against each page's concatenated text, never against an
-individual text item. pdf.js splits ligatures into separate items — "difference"
-arrives as "di", "ff", "erence", each with its own bounding box — so no single
+individual text item. pdf.js splits ligatures into separate items - "difference"
+arrives as "di", "ff", "erence", each with its own bounding box - so no single
 item holds a whole word, and a quote containing any such word could never match
 item text. The matched character range is mapped back to items afterwards,
 through `charStart`. A comment says so at the matching site, because it is the
@@ -558,7 +558,7 @@ one thing a future reader would otherwise simplify away.
 Both sides are normalised the same way: whitespace collapsed, lowercased,
 punctuation dropped, keeping an offset back into the original for every
 surviving character. Collapsing whitespace is what lets a quote the model joined
-with a space match a source that wrapped the same sentence across a newline —
+with a space match a source that wrapped the same sentence across a newline -
 which is the common case, since the extracted text carries the PDF's hard
 wrapping.
 
@@ -595,7 +595,7 @@ begin accepting text from the wrong page.
 
 ### The fuzzy path is less exercised than the tests suggest
 
-Script E is a whole answer corrupted the way a scanner corrupts one — `arnmeter`
+Script E is a whole answer corrupted the way a scanner corrupts one - `arnmeter`
 for `ammeter`, `serles` for `series`, `equi1ibrium`, `Ohm's 1aw, V = lR`. It was
 built to be the hardest case for this file, and on a real run all fifteen quotes
 matched **exactly**, not fuzzily.
@@ -606,7 +606,7 @@ corruption, so the exact pass succeeds and the fuzzy matcher never runs. A
 damaged script is not by itself a hard case for locating: it is a hard case for
 *reading*, which is the model's problem, not this file's.
 
-What actually needs the fuzzy matcher is the opposite — a model that silently
+What actually needs the fuzzy matcher is the opposite - a model that silently
 tidies the spelling, returning "ammeter" where the page says "arnmeter". That is
 disobedience to the prompt rather than damage in the source, and it is not what
 the OCR fixture produces.
@@ -639,13 +639,13 @@ mid-sentence does not get a box running back to the left margin.
 ### Which findings get a figure anchor
 
 `enforce` distinguishes three states in `evidenceStatus`, and locating treats
-them differently. A `verified` quote is located. An `absent` one — a missing
-point, or a finding about a drawing that had no text to quote — falls back to
+them differently. A `verified` quote is located. An `absent` one - a missing
+point, or a finding about a drawing that had no text to quote - falls back to
 the largest image in the document, marked `anchor: "figure"` and
 `needsPlacement: true` for a human to confirm.
 
-An `unverifiable` one — where the model quoted something that is not in the
-answer and enforcement removed it — is left unplaced. Anchoring it to the figure
+An `unverifiable` one - where the model quoted something that is not in the
+answer and enforcement removed it - is left unplaced. Anchoring it to the figure
 would be inventing a position for a quote that was already invented once.
 
 ## Persistence
@@ -666,7 +666,7 @@ second store leaves the first file's mtime untouched.
 
 `documents` carries the page geometry and the extracted text and items, not just
 the file path. A reopened grading can therefore scale and draw its annotation
-overlay straight from the stored rows — no pdf.js, no re-extraction, and no
+overlay straight from the stored rows - no pdf.js, no re-extraction, and no
 possibility of the overlay being computed against different coordinates from the
 ones the annotations were placed in.
 
@@ -685,7 +685,7 @@ table alone. Re-grading a document produces a new result with its own
 annotations rather than mutating an existing one's.
 
 A test reads `PRAGMA foreign_key_list(annotations)` and asserts the only table
-referenced is `results` — so the guarantee is checked against the schema itself
+referenced is `results` - so the guarantee is checked against the schema itself
 rather than against our intentions about it. Another persists a run, reopens it,
 moves an annotation, reopens again, and asserts the move survived while every
 criterion, the total, the confidence and the adjustments are byte-identical.
@@ -702,7 +702,7 @@ criterion, the total, the confidence and the adjustments are byte-identical.
 The upload takes raw bytes with `Content-Type: application/pdf` rather than
 multipart, which avoids a file-upload dependency for a route that accepts
 exactly one file. A failed grade returns a structured error and persists
-nothing — there is no half-saved run to clean up.
+nothing - there is no half-saved run to clean up.
 
 Patching an annotation's rect sets its anchor to `manual` and clears
 `needsPlacement`: once a teacher has moved a box, its position is theirs and the
@@ -725,7 +725,7 @@ The scale is rendered width over PDF page width, and it is recomputed by a
 `ResizeObserver` on the page container rather than being measured once. Every
 rectangle is positioned from that scale, so an overlay that did not react to a
 resize would drift away from the words it marks the moment the window changed
-size — the most visible possible bug in this system. Measured across a
+size - the most visible possible bug in this system. Measured across a
 1000px → 520px change, an annotation's position drifts by 0.0005 of the page
 width, which is a quarter of a pixel of rounding.
 
@@ -743,12 +743,12 @@ The scroll is a direct `scrollTop` assignment rather than `scrollIntoView` or a
 smooth scroll, for two measured reasons. `scrollIntoView` scrolls every
 scrollable ancestor, which dragged the page viewer around as a side effect of
 selecting a criterion. And a smooth scroll is animated over several frames,
-which the canvas repainting beside it cancels partway — a 1299px scroll was
+which the canvas repainting beside it cancels partway - a 1299px scroll was
 measured landing 22px down. An instant jump always arrives.
 
 ### Colour is never the only signal
 
-Red for incorrect, amber for partial and missing, green for correct — and the
+Red for incorrect, amber for partial and missing, green for correct - and the
 criterion id is printed on the box itself, so the annotation is identifiable
 without seeing colour at all. Correct criteria are drawn as underlines with no
 fill, since a tint behind the words reads as a strikethrough. A quote spanning
@@ -768,7 +768,7 @@ that says so, with a count. That includes the case where the model quoted
 something that is not in the answer: enforcement strips the quote, and the
 annotation is kept with no rectangle so the finding still appears in the list
 and can be placed by hand. An early version returned nothing at all for those,
-and on the handwritten fixture — where every quote is unverifiable — it produced
+and on the handwritten fixture - where every quote is unverifiable - it produced
 a blank page beside an empty sidebar that looked like a clean pass.
 
 Figure-anchored annotations get their own list, labelled as a best guess to
@@ -788,7 +788,7 @@ by care.
       db.ts
         config.ts
 
-The grading pipeline is not in that graph, so there is no call path to audit —
+The grading pipeline is not in that graph, so there is no call path to audit -
 there is nothing to call. For comparison, the grade route reaches fourteen
 modules including `grade/pipeline.ts`, `grade/provider.ts` and `pdf/render.ts`.
 
@@ -803,9 +803,9 @@ Beneath that, `db.ts` exposes annotation CRUD functions that touch only the
 guarantee holds at three levels: the schema has no link, the data layer has no
 function that writes both, and the route has no import that reaches grading.
 
-A second test performs every mutation the UI can perform — create, move, resize,
+A second test performs every mutation the UI can perform - create, move, resize,
 recolour, change kind, edit comment, clear a rect, place an unplaced finding,
-delete — against a run that has adjustments and a review flag, then asserts
+delete - against a run that has adjustments and a review flag, then asserts
 `JSON.stringify(result)` is identical before and after. Serialising the whole
 result means a field added later is covered automatically, and the test also
 asserts the annotations *did* change, so it cannot pass by doing nothing.
@@ -826,7 +826,7 @@ proposed from what a person decided.
 
 Pointer gestures are tracked on `window` rather than the element, so a fast drag
 that leaves the box still finishes correctly. Nothing is sent while the pointer
-moves — a local draft rect is drawn, and one request is sent on release. Escape
+moves - a local draft rect is drawn, and one request is sent on release. Escape
 cancels drawing and clears the selection; Delete removes the selected
 annotation, except while the caret is in the comment field, where both keys mean
 what they normally mean.
@@ -835,7 +835,7 @@ what they normally mean.
 
 `annotate/export.ts` loads the stored original into a new pdf-lib document in
 memory, draws onto that copy, appends a summary, and returns fresh bytes. The
-file on disk is never opened for writing — it is mode `0444`, and its filename
+file on disk is never opened for writing - it is mode `0444`, and its filename
 is the sha256 of its own contents, so a test can assert it is unchanged simply
 by re-hashing it and comparing to its name.
 
@@ -852,7 +852,7 @@ page at 1x, finds the bounding box of the coloured pixels, and checks all four
 edges against the rect flipped into image space. Every edge lands within 3px. A
 second test extracts the text of the exported page, takes the items falling
 inside the drawn rectangle, and asserts they are the words the criterion quoted
-— so the box is proved to be over the right text, not merely at plausible
+- so the box is proved to be over the right text, not merely at plausible
 coordinates.
 
 ### Marking without covering the answer
@@ -864,14 +864,14 @@ below it, which landed on the next line of the student's answer. A marked script
 that hides the thing being marked is worse than an unmarked one.
 
 The right margin is narrow, so corrections are set at 5.2pt, wrapped to it, and
-cut after nine lines — the full text is always on the summary page. Only the
+cut after nine lines - the full text is always on the summary page. Only the
 first box of a criterion is tagged and annotated, so a quote spanning three
 lines is not labelled three times.
 
 The standard 14 fonts encode WinAnsi, which covers Latin-1 plus the dashes,
 curly quotes and ellipsis in 0x80–0x9F. The rupee sign and subscript digits in
-Q3 fall outside it and throw at draw time, so those two are transliterated —
-"Rs." and plain digits — and nothing else is touched. An earlier version also
+Q3 fall outside it and throw at draw time, so those two are transliterated -
+"Rs." and plain digits - and nothing else is touched. An earlier version also
 rewrote em dashes as `--`, which was unnecessary and looked wrong in the title.
 
 ### The summary
@@ -883,7 +883,7 @@ finding type, confidence, evidence, feedback and correction.
 
 Unplaced findings appear here under their own heading. Leaving them out of the
 export would reintroduce, through the back door, the failure the unplaced list
-exists to prevent — the export is the artefact that leaves the system, and a
+exists to prevent - the export is the artefact that leaves the system, and a
 finding that vanishes from it is a finding nobody will ever see.
 
 The summary is written to stand on its own away from the app, because it is what
@@ -903,7 +903,7 @@ nothing else in the system knows which one it has. `createProvider()` picks by
 `GRADE_PROVIDER`; there is no special-casing anywhere downstream.
 
 Because the prompt is already an ordered `PromptPart[]`, mapping it to Gemini is
-a one-line transformation — text stays text, a PNG becomes `inlineData` base64,
+a one-line transformation - text stays text, a PNG becomes `inlineData` base64,
 and the order is preserved. This is the payoff for changing the interface at
 stage 6: had the prompt still been a string with a marker in it, this file would
 have had to parse it back apart.
@@ -915,7 +915,7 @@ between runs any more than it has to.
 ### Retrying, and what does not get retried
 
 One retry, and only for a failure worth retrying: 408, 429, 500, 502, 503, 504,
-or a network fault. A 400, 401, 403 or 404 fails immediately — retrying a
+or a network fault. A 400, 401, 403 or 404 fails immediately - retrying a
 refusal only wastes time and hides the cause. A malformed *answer* is not
 retried here at all; that is the pipeline's repair attempt, which is a different
 thing and belongs at a different level. An empty response is treated as a
@@ -928,7 +928,7 @@ generation is distinguishable from a refusal.
 at a local HTTP stub. `tests/gemini.test.ts` runs the real SDK against that stub
 and asserts the request it actually produces: four parts in the order the prompt
 builder set them, images as `inlineData` PNG base64, `responseMimeType` and
-`temperature` as configured. It then drives the retry — a 503 followed by a 200
+`temperature` as configured. It then drives the retry - a 503 followed by a 200
 succeeds on the second attempt, a 403 is not retried at all, and two 429s fail
 with a clean error.
 
@@ -944,7 +944,7 @@ offline against the mock: a fully correct answer, Script A, an incorrect answer,
 a blank answer, OCR-like spelling errors, malformed output, an API failure, and
 a score above the maximum. Every one of these verifies the *pipeline*. Where a
 case looks like an accuracy check, the assertion is about what the system does
-with an answer, not about whether the answer was right — the answers come from
+with an answer, not about whether the answer was right - the answers come from
 a mock, so a test asserting Q1.C2 scores zero is asserting that the mock returns
 what the mock was told to return.
 
@@ -961,7 +961,7 @@ arguable, and it varies between runs; pinning it would turn the test into a
 record of one run rather than a check on marking.
 
 `tests/setup.ts` loads `server/.env` for the test process. Without it the live
-test could never see the API key and would silently skip — reporting a pass
+test could never see the API key and would silently skip - reporting a pass
 while proving nothing, which is exactly the failure this split exists to avoid.
 Anything set on the command line still wins, so the offline suite stays offline.
 
@@ -970,7 +970,7 @@ Anything set on the command line still wins, so the offline suite stays offline.
 Writing the OCR case exposed a real bug. `enforce` verified a quote by exact
 containment after normalising whitespace and case, while `locate` could match
 fuzzily. So a quote whose spelling the model had tidied was stripped as
-unverifiable *before* the fuzzy matcher ever saw it — meaning fuzzy matching
+unverifiable *before* the fuzzy matcher ever saw it - meaning fuzzy matching
 could never run for the one case it exists for.
 
 Both now use `quoteMatchScore`, exported from `locate.ts`: a quote is real if

@@ -27,7 +27,7 @@ describe("mock provider", () => {
     expect([...MOCK_MODES]).toEqual(["valid", "malformed", "overmax", "throws", "badEvidence"]);
   });
 
-  it("is deterministic — the same mode returns the same bytes", async () => {
+  it("is deterministic - the same mode returns the same bytes", async () => {
     for (const mode of ["valid", "overmax", "badEvidence"] as const) {
       expect(await call(mode)).toBe(await call(mode));
     }

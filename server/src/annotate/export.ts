@@ -22,7 +22,7 @@ const BODY_SIZE = 9.5;
 
 /**
  * pdf-lib draws with the standard 14 fonts in WinAnsi, which cannot encode
- * every character the fixtures contain — the rupee sign and subscript digits
+ * every character the fixtures contain - the rupee sign and subscript digits
  * in Q3 both fall outside it, and passing them through throws at draw time.
  * They are transliterated rather than dropped, so a marked-up quote still reads
  * as what the student wrote.
@@ -101,7 +101,7 @@ function drawAnnotation(page: PDFPage, annotation: Annotation, fonts: Fonts): vo
 }
 
 /**
- * The criterion id, as on screen, so colour is never the only signal — printed
+ * The criterion id, as on screen, so colour is never the only signal - printed
  * in the left margin rather than over the box. The fixture's text block starts
  * an inch in, and a tag drawn on the box itself covers the first word of the
  * line above it.
@@ -307,7 +307,7 @@ function writeSummary(pdf: PDFDocument, stored: StoredResult, fonts: Fonts): voi
   const { result } = stored;
   const report = new Report(pdf, fonts);
 
-  report.text("GradeSense — marked answer", { size: 15, font: fonts.bold });
+  report.text("GradeSense - marked answer", { size: 15, font: fonts.bold });
   report.text(
     `${stored.document.filename}   ·   graded ${new Date(stored.createdAt).toISOString().slice(0, 16).replace("T", " ")}   ·   provider ${stored.provider}`,
     { size: 8.5, color: MUTED },

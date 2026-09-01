@@ -72,13 +72,13 @@ function Provenance({ stored }: { stored: StoredResult }) {
       <span className="provenance-dot" aria-hidden="true" />
       {isMock ? (
         <>
-          <strong>Mock provider</strong> ({model}) — fixed output, no model was
+          <strong>Mock provider</strong> ({model}) - fixed output, no model was
           called. These marks do not reflect grading quality.
         </>
       ) : (
         <>
           Graded by <strong>{model ?? kind}</strong>
-          {stored.providerCalled ? "" : " — answered without a model call"}
+          {stored.providerCalled ? "" : " - answered without a model call"}
           {stored.repaired ? " · output repaired on retry" : ""}
         </>
       )}
@@ -236,7 +236,7 @@ function CriterionCard({
     if (!element || !panel) return;
 
     // Assigned directly. Do not "clean this up" into scrollIntoView or a smooth
-    // scroll — both were tried and both are wrong here, measured in Chrome:
+    // scroll - both were tried and both are wrong here, measured in Chrome:
     //
     //   scrollIntoView            scrolls every scrollable ancestor, so
     //                             selecting a criterion dragged the page viewer
@@ -277,7 +277,7 @@ function CriterionCard({
         <p className="evidence evidence-none">
           {criterion.evidenceStatus === "unverifiable"
             ? "The quote given did not appear in the answer and was removed."
-            : "No quote — nothing was written for this point, or the finding is about a drawing."}
+            : "No quote - nothing was written for this point, or the finding is about a drawing."}
         </p>
       )}
 

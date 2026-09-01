@@ -121,7 +121,7 @@ async function extractImageBoxes(page: PDFPageProxy, pageNumber: number): Promis
 
 export async function extractPdf(data: Uint8Array): Promise<ExtractedDocument> {
   // pdf.js takes ownership of the buffer it is given, and the caller may still
-  // need theirs — the uploaded bytes get rasterised and exported later.
+  // need theirs - the uploaded bytes get rasterised and exported later.
   // Font quirks in the fixtures raise warnings that say nothing actionable.
   const loadingTask = getDocument({
     data: new Uint8Array(data),

@@ -1,23 +1,23 @@
-# Scripts B, C and E — text and error key
+# Scripts B, C and E - text and error key
 
 Three more student scripts to complete the test set. Type each into a separate
 Google Doc, insert the diagrams noted, export as PDF.
 
 Diagrams needed:
 
-- **Script B** — two new hand drawings: a correct circuit (voltmeter in
+- **Script B** - two new hand drawings: a correct circuit (voltmeter in
   **parallel across the bulb**) and a correct graph (equilibrium labelled
   **₹30, 60 units**).
-- **Script C** — reuse Script A's two photographs. Its circuit already has the
+- **Script C** - reuse Script A's two photographs. Its circuit already has the
   voltmeter miswired and its graph already carries the wrong equilibrium label,
   which is exactly what C needs.
-- **Script E** — reuse Script B's two photographs.
+- **Script E** - reuse Script B's two photographs.
 
 So the only new drawing is Script B's pair.
 
 ---
 
-# SCRIPT B — fully correct
+# SCRIPT B - fully correct
 
 Expected: **14 / 15** (see the correction note under the error key below)
 
@@ -52,7 +52,7 @@ the resistance is increased, the current in the circuit decreases and the bulb
 becomes dimmer. If the resistance is reduced, more current flows and the bulb
 becomes brighter.
 
-*[insert correct circuit diagram — voltmeter in parallel across the bulb]*
+*[insert correct circuit diagram - voltmeter in parallel across the bulb]*
 
 ---
 
@@ -107,11 +107,11 @@ curve as S₁ in my graph.
 Assuming demand is unchanged, the new equilibrium occurs at a higher price and a
 lower quantity than before.
 
-*[insert correct graph — equilibrium labelled ₹30, 60 units]*
+*[insert correct graph - equilibrium labelled ₹30, 60 units]*
 
 ---
 
-# SCRIPT C — mostly incorrect
+# SCRIPT C - mostly incorrect
 
 Expected: **3 / 15** (Q1.C1, Q2.C1, Q3.C1)
 
@@ -183,11 +183,11 @@ The new equilibrium will be at a lower price and a higher quantity than before.
 
 ---
 
-# SCRIPT E — OCR-style spelling errors
+# SCRIPT E - OCR-style spelling errors
 
 Expected: **14 / 15**. The content is correct; only the characters are
 corrupted. Spelling must not cost rubric marks. The one mark lost is Q1.C5, for
-the same diagram reason as Script B — see the correction note below.
+the same diagram reason as Script B - see the correction note below.
 
 Reuse Script B's two diagram photographs.
 
@@ -281,15 +281,15 @@ a 1ower quantity than before.
 
 ---
 
-# Error key — Scripts B, C and E
+# Error key - Scripts B, C and E
 
-## Script B — fully correct except for one diagram discrepancy
+## Script B - fully correct except for one diagram discrepancy
 
 Expected: **14 / 15**. No planted errors in the prose.
 
 B exists to check the opposite failure from Script A: a grader that has learned
 to find fault will invent one. Every written criterion is met, in wording
-deliberately different from the model answer — the Q2 argument reaches a similar
+deliberately different from the model answer - the Q2 argument reaches a similar
 balanced conclusion by a different route, and Q1 uses "dimmer" and "brighter"
 rather than the model's phrasing. Marks lost on those mean the grader is
 rewarding resemblance rather than reasoning, and none were.
@@ -313,7 +313,7 @@ On a blind run the grader marked Q1.C5 as 0 and gave the reason:
 > arrow for current."
 
 That is correct. It had to read the photograph, compare it against a claim made
-in the prose, and notice they disagree — which is exactly the text-versus-image
+in the prose, and notice they disagree - which is exactly the text-versus-image
 conflict the marking instructions ask for. The key was written from the intended
 text without checking the drawing that was actually inserted.
 
@@ -330,67 +330,67 @@ the discrepancy first.
 
 ---
 
-## Script C — mostly incorrect
+## Script C - mostly incorrect
 
 Expected: **3 / 15**
 
-### C-Q1-1 — Component functions wrong
+### C-Q1-1 - Component functions wrong
 - Student claim: the switch stores energy and releases it slowly; the battery
   controls how fast the current moves; the resistor makes the current stronger.
 - Correct: the battery is the source of potential difference; the switch
   completes or breaks the path; the resistor opposes current.
 - Rubric: Q1 Criterion 3 → **0 / 1**
 
-### C-Q1-2 — Voltmeter in series
+### C-Q1-2 - Voltmeter in series
 - Student claim: both instruments are in series so current passes through them.
 - Correct: the voltmeter goes in parallel across the bulb.
 - Rubric: Q1 Criterion 2 → **0 / 1**
 
-### C-Q1-3 — Current leaves both terminals
+### C-Q1-3 - Current leaves both terminals
 - Student claim: current comes out of both terminals and meets at the bulb.
 - Correct: conventional current flows from positive, round the circuit, to
   negative.
 - Rubric: Q1 Criterion 5 → **0 / 1** (no coherent current path or direction)
 
-### C-Q1-4 — Resistance increases current
+### C-Q1-4 - Resistance increases current
 - Student claim: a bigger resistor gives a brighter bulb.
 - Correct: with voltage constant, more resistance means less current.
 - Rubric: Q1 Criterion 4 → **0 / 1**
 
-### C-Q1-5 — Basic circuit is present
+### C-Q1-5 - Basic circuit is present
 - The components are named as a single closed loop, and the diagram shows one.
 - Rubric: Q1 Criterion 1 → **1 / 1**. Not everything in this script is wrong,
-  which is the point — a grader should not mark the whole question down because
+  which is the point - a grader should not mark the whole question down because
   most of it is.
 
-### C-Q2-1 — Position stated but never argued
+### C-Q2-1 - Position stated but never argued
 - The opening sentence takes a clear position, so Criterion 1 is met.
 - Everything after it is assertion: "everyone knows", "teachers say the same",
   and a conclusion that restates the opening.
 - Rubric: Q2 C1 → **1 / 1**; C2, C3, C4, C5 → **0 / 1** each.
 - Note: no opposing viewpoint is acknowledged and no example is given, which is
-  what separates this from Script A's Q2 — A argues a position properly and
+  what separates this from Script A's Q2: A argues a position properly and
   scores 4, C asserts one and scores 1.
 
-### C-Q3-1 — Equilibrium wrong
+### C-Q3-1 - Equilibrium wrong
 - Student claim: ₹40 and 40 units.
 - Correct: ₹30 and 60 units.
 - Rubric: Q3 Criterion 2 → **0 / 1**
 
-### C-Q3-2 — Shortage and surplus reversed
+### C-Q3-2 - Shortage and surplus reversed
 - Rubric: Q3 Criterion 3 → **0 / 1**
 
-### C-Q3-3 — Supply shifts the wrong way
+### C-Q3-3 - Supply shifts the wrong way
 - Student claim: higher costs make producers supply more, shifting supply right.
 - Correct: higher costs shift supply left.
 - Rubric: Q3 Criterion 4 → **0 / 1**
 
-### C-Q3-4 — New equilibrium wrong
+### C-Q3-4 - New equilibrium wrong
 - Student claim: lower price, higher quantity.
 - Correct: higher price, lower quantity.
 - Rubric: Q3 Criterion 5 → **0 / 1**
 
-### C-Q3-5 — Axes and curves correct
+### C-Q3-5 - Axes and curves correct
 - Rubric: Q3 Criterion 1 → **1 / 1**
 
 | Question | C1 | C2 | C3 | C4 | C5 | Total |
@@ -402,7 +402,7 @@ Expected: **3 / 15**
 
 ---
 
-## Script E — OCR-style spelling errors
+## Script E - OCR-style spelling errors
 
 Expected: **14 / 15**
 
@@ -419,12 +419,12 @@ forbids:
 E reuses Script B's photographs, so it inherits B's Q1.C5 discrepancy: the text
 claims a current-direction arrow that the drawing does not have. That one mark
 is a real failure of the script, not of the grader, and this key was corrected
-to expect 0 for it after a blind run caught it — see the Script B correction
+to expect 0 for it after a blind run caught it - see the Script B correction
 note above. Everything else should score 1.
 
 This script also exercises `locate.ts` hardest. Evidence quotes come back
 containing `arnmeter` and `equi1ibrium`, so the fuzzy matcher has to find them
-in text that is corrupted the same way — and if the model silently corrects the
+in text that is corrupted the same way - and if the model silently corrects the
 spelling in its quote, the matcher has to find it anyway.
 
 | Question | C1 | C2 | C3 | C4 | C5 | Total |
@@ -443,9 +443,9 @@ spelling in its quote, the matcher has to find it anyway.
 | A | Partially correct, planted errors | 9 / 15 | Development fixture (train) |
 | B | Fully correct prose, diagram missing its arrow | 14 / 15 | Test |
 | C | Mostly incorrect | 3 / 15 | Test |
-| D | Blank answer sheet | 0 / 15 | Test — blank guard |
-| E | OCR-style corruption, B's diagrams | 14 / 15 | Test — fuzzy locating |
-| F | Handwritten scan | low confidence, flagged | Test — unclear guard |
+| D | Blank answer sheet | 0 / 15 | Test - blank guard |
+| E | OCR-style corruption, B's diagrams | 14 / 15 | Test - fuzzy locating |
+| F | Handwritten scan | low confidence, flagged | Test - unclear guard |
 
 A was the only script used while developing the prompt. B, C, E and F were held
 back and run once the grader was finished.

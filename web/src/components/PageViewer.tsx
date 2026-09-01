@@ -172,7 +172,7 @@ function Page({
         />
       </div>
       <figcaption className="muted">
-        Page {geometry.page} — {Math.round(geometry.width)} × {Math.round(geometry.height)} pt
+        Page {geometry.page} - {Math.round(geometry.width)} × {Math.round(geometry.height)} pt
       </figcaption>
     </figure>
   );

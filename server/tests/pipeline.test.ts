@@ -61,7 +61,7 @@ describe("prompt", () => {
   });
 
   it("labels the model answer as reference only and disclaims similarity", () => {
-    expect(prompt).toContain("MODEL ANSWER — REFERENCE ONLY");
+    expect(prompt).toContain("MODEL ANSWER - REFERENCE ONLY");
     expect(says(prompt, "Similarity to this text is not evidence that an answer is correct")).toBe(true);
     expect(says(prompt, "difference from it is not evidence that an answer is wrong")).toBe(true);
     expect(says(prompt, "reaches the opposite conclusion, can earn full marks")).toBe(true);
@@ -78,9 +78,9 @@ describe("prompt", () => {
     const at = (needle: string) => first.text.indexOf(needle);
     expect(at("## HOW TO MARK")).toBeGreaterThan(-1);
     expect(at("## MARKING SCHEME")).toBeGreaterThan(at("## HOW TO MARK"));
-    expect(at("## MODEL ANSWER — REFERENCE ONLY")).toBeGreaterThan(at("## MARKING SCHEME"));
-    expect(at("## STUDENT ANSWER — EXTRACTED TEXT")).toBeGreaterThan(
-      at("## MODEL ANSWER — REFERENCE ONLY"),
+    expect(at("## MODEL ANSWER - REFERENCE ONLY")).toBeGreaterThan(at("## MARKING SCHEME"));
+    expect(at("## STUDENT ANSWER - EXTRACTED TEXT")).toBeGreaterThan(
+      at("## MODEL ANSWER - REFERENCE ONLY"),
     );
 
     // The output contract is in the part after the images, so it is the last
@@ -112,7 +112,7 @@ describe("prompt", () => {
 
   // The model has to find Script A's specific errors itself. The marking scheme
   // legitimately states the correct equilibrium and the student's text
-  // legitimately states the wrong one — what must not appear is an instruction
+  // legitimately states the wrong one - what must not appear is an instruction
   // pointing at the discrepancy. So this checks our own prose, not the material
   // it quotes.
   it("does not tell the model where this script's errors are", () => {

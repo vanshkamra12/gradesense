@@ -18,7 +18,7 @@ export function isTransientFailure(error: unknown): boolean {
 
 /**
  * The prompt is already an ordered list of parts, so this is a direct mapping
- * onto Gemini's own shape — text stays text, a PNG becomes inline base64 data,
+ * onto Gemini's own shape - text stays text, a PNG becomes inline base64 data,
  * and the order is preserved exactly as the prompt builder set it.
  */
 export function toGeminiParts(parts: PromptPart[]) {

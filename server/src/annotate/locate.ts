@@ -179,7 +179,7 @@ function bestFuzzyMatch(page: ExtractedPage, haystack: string, needle: string): 
  * `enforce` uses this to decide whether a quote is real, and it has to be the
  * same matcher used to place the quote on the page. Verifying with exact
  * matching while locating with fuzzy matching would strip every quote whose
- * spelling the model tidied — which is precisely the case fuzzy matching exists
+ * spelling the model tidied - which is precisely the case fuzzy matching exists
  * for, so it would never run.
  */
 export function quoteMatchScore(text: string, quote: string): number {
@@ -247,8 +247,8 @@ export function locateQuote(
   if (needle === "") return UNPLACED_RESULT;
 
   // Matching runs against each page's joined text, never against an item's own
-  // text. pdf.js splits ligatures into separate items — "difference" arrives as
-  // "di", "ff", "erence", each with its own box — so no single item holds a
+  // text. pdf.js splits ligatures into separate items - "difference" arrives as
+  // "di", "ff", "erence", each with its own box - so no single item holds a
   // whole word. Only the joined text spells what the student wrote. The matched
   // range is mapped back to items afterwards, through charStart.
   const normalisedPages = student.pages.map((page) => ({ page, haystack: normalise(page.text) }));
@@ -268,7 +268,7 @@ export function locateQuote(
   if (candidates.length === 0) return UNPLACED_RESULT;
 
   // More than one plausible position. Prefer the page the model reported, then
-  // the best score — but say that a choice had to be made either way.
+  // the best score - but say that a choice had to be made either way.
   const ambiguous = candidates.length > 1;
   const onReportedPage = candidates.filter((match) => match.page === reportedPage);
   const shortlist = onReportedPage.length > 0 ? onReportedPage : candidates;

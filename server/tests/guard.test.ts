@@ -55,7 +55,7 @@ async function makeUnclearPdf(): Promise<Uint8Array> {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const image = await pdf.embedPng(canvas.encodeSync("png"));
 
-  // Scaffolding only — character for character what the question paper carries,
+  // Scaffolding only - character for character what the question paper carries,
   // em dash included, or the lines will not match and the sheet reads as answered.
   const headings = ["Question 1 — Science", "Question 2 — English", "Question 3 — Economics"];
   headings.forEach((text, index) => {
@@ -182,7 +182,7 @@ describe("blank answer through the pipeline", () => {
 
 // student_answer_F.pdf is a real handwritten page: ruled notebook paper, one
 // full-page scan, no extractable text at all. It is the case the guard exists
-// for — the system has to decline to fake confidence about handwriting rather
+// for - the system has to decline to fake confidence about handwriting rather
 // than pretend it read the page.
 describe("a real handwritten answer through the pipeline", () => {
   const handwritten = () => fixture("student_answer_F.pdf");

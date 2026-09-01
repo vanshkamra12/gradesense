@@ -28,14 +28,14 @@ function markingScheme(rubric: Rubric): string {
               ...question.guidance.map((line) => `  ${line}`),
             ].join("\n");
 
-      return [`### ${question.id} — ${question.subject}`, "", criteria, guidance].join("\n");
+      return [`### ${question.id} - ${question.subject}`, "", criteria, guidance].join("\n");
     })
     .join("\n\n");
 }
 
 function referenceAnswers(rubric: Rubric): string {
   return rubric.modelAnswers
-    .map((answer) => `### ${answer.questionId} — ${answer.subject}\n\n${answer.text}`)
+    .map((answer) => `### ${answer.questionId} - ${answer.subject}\n\n${answer.text}`)
     .join("\n\n");
 }
 
@@ -67,7 +67,7 @@ strong. Mark each one as if it were the only thing you were looking at.
 
 Each criterion is worth the number of marks shown in brackets, and resolves to a
 whole number. Award the full mark when the criterion is met and 0 when it is
-not. A criterion that is only half met scores 0 — there are no fractional marks.
+not. A criterion that is only half met scores 0 - there are no fractional marks.
 
 Use "findingType" to record what kind of answer it was, not how much credit it
 earned:
@@ -80,7 +80,7 @@ earned:
 
 "partial" scores 0, exactly as "incorrect" does. The difference is for the
 feedback the student reads, not for the mark. When half of what a criterion asks
-for is right and half is wrong, that is "partial" with 0 awarded — never a
+for is right and half is wrong, that is "partial" with 0 awarded - never a
 fraction of a mark, and never rounded up because most of it was right.
 
 Do not calculate, estimate or reason about a total or a percentage. You are not
@@ -107,7 +107,7 @@ Locate content by what it says, not by where it sits on the page.
 
 ## SPELLING, GRAMMAR AND PRESENTATION
 
-Report spelling and grammatical errors in your feedback — they are useful to the
+Report spelling and grammatical errors in your feedback - they are useful to the
 student. They must not by themselves cost a criterion mark. Misspelling a
 technical term is not the same as misunderstanding it: if the meaning is
 identifiable, the point is made. Untidy layout and out-of-order parts likewise
@@ -121,7 +121,7 @@ errors.
 
 ${markingScheme(rubric)}
 
-## MODEL ANSWER — REFERENCE ONLY
+## MODEL ANSWER - REFERENCE ONLY
 
 What follows is one example of an answer that would earn full marks. It is
 reference material to help you understand the subject matter. It is not a target
@@ -136,13 +136,13 @@ criterion wording. Never mark by resemblance to what follows.
 
 ${referenceAnswers(rubric)}
 
-## STUDENT ANSWER — EXTRACTED TEXT
+## STUDENT ANSWER - EXTRACTED TEXT
 
 Quote your evidence from this text, character for character.
 
 ${studentText(student)}
 
-## STUDENT ANSWER — PAGE IMAGES
+## STUDENT ANSWER - PAGE IMAGES
 
 The ${pageCount} page image${pageCount === 1 ? "" : "s"} below ${pageCount === 1 ? "is" : "are"} in page order. Use them to read the
 hand-drawn diagrams, and to see anything the extracted text cannot show,
@@ -165,7 +165,7 @@ correct spelling. Do not tidy punctuation or capitalisation. Do not join across 
 line break any differently than the source does. The quote is matched against
 the original document, and an edited quote cannot be found.
 
-Quote the shortest span that carries the finding — about one sentence, and no
+Quote the shortest span that carries the finding - about one sentence, and no
 more than ${MAX_EVIDENCE_CHARS} characters. Long quotes locate less precisely and make worse
 annotations.
 

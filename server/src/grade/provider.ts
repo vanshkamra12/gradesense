@@ -28,7 +28,7 @@ export function isMockMode(value: string): value is MockMode {
  *
  * The marks mirror fixtures/error_key_script_a.md, so pipeline tests run against
  * a realistic 9/15 rather than a uniform result. That similarity is a
- * convenience for the tests, not evidence that grading works — see the note on
+ * convenience for the tests, not evidence that grading works - see the note on
  * mock-backed tests in ARCHITECTURE.md.
  */
 type MockCriterion = {
@@ -133,7 +133,7 @@ const SCRIPT_A: Record<string, MockCriterion> = {
     feedback:
       "The conclusion contradicts the argument. The body argues technology creates dependence, then the conclusion recommends maximal use.",
     correction:
-      "Conclude in line with the argument — for example that technology harms learning when it substitutes for thinking, so its use should be deliberate.",
+      "Conclude in line with the argument - for example that technology harms learning when it substitutes for thinking, so its use should be deliberate.",
     confidence: 0.93,
     reasoning: "The final paragraph reverses the position held throughout.",
   },

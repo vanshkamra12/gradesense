@@ -49,7 +49,7 @@ export default function App() {
 
   /**
    * Annotation edits replace one annotation in local state from the server's
-   * response. Nothing here reads or writes the grading result — the marks in
+   * response. Nothing here reads or writes the grading result - the marks in
    * `current.result` are simply not part of any of these paths.
    */
   const replaceAnnotation = useCallback((updated: Annotation) => {
@@ -180,9 +180,9 @@ export default function App() {
             onClick={() => setDrawIntent(drawIntent ? null : { kind: "new" })}
           >
             {drawIntent?.kind === "place"
-              ? "Draw the box for this finding — Esc to cancel"
+              ? "Draw the box for this finding - Esc to cancel"
               : drawIntent
-                ? "Drawing — drag on the page, or click to cancel"
+                ? "Drawing - drag on the page, or click to cancel"
                 : "Add annotation"}
           </button>
         )}

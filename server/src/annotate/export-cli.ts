@@ -28,7 +28,7 @@ const bytes = new Uint8Array(fs.readFileSync(file));
 const outcome = await gradeDocument(bytes, createProvider());
 
 if (!outcome.ok) {
-  console.error(`Grading failed: ${outcome.error.code} — ${outcome.error.message}`);
+  console.error(`Grading failed: ${outcome.error.code} - ${outcome.error.message}`);
   process.exit(1);
 }
 

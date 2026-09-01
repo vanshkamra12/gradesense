@@ -13,7 +13,7 @@ function pdfFromBody(body: unknown): Buffer | null {
 }
 
 /**
- * Uploads one supporting document — a question paper or a marking scheme — and
+ * Uploads one supporting document - a question paper or a marking scheme - and
  * returns its id. Kept separate from grading so the three files can be sent
  * independently without a multipart parser.
  */

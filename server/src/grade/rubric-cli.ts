@@ -10,7 +10,7 @@ const rubric = await loadRubric();
 
 for (const question of rubric.questions) {
   console.log(`\n${"=".repeat(78)}`);
-  console.log(`${question.id} — ${question.subject}  (${question.maxMarks} marks)`);
+  console.log(`${question.id} - ${question.subject}  (${question.maxMarks} marks)`);
   console.log("=".repeat(78));
 
   console.log("\nCriteria:");

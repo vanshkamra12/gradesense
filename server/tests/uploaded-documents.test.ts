@@ -99,7 +99,7 @@ describe("an uploaded marking scheme replaces the bundled one", () => {
     expect(rubric.totalMarks).toBe(14);
   }, 30_000);
 
-  // The requirement: grade against 14, or fail — never silently against 15.
+  // The requirement: grade against 14, or fail - never silently against 15.
   it("grades against the uploaded scheme's 14 criteria", async () => {
     const rubric = await parseRubricFromPdf(smaller);
     const outcome = await gradeDocument(

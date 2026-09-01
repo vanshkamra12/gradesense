@@ -1,4 +1,4 @@
-GradeSense — Script A graded by the real provider, three runs
+GradeSense - Script A graded by the real provider, three runs
 Generated: 2026-09-01 07:22 UTC
 Command: GRADE_PROVIDER=gemini npm run compare --workspace server -- 3
 
@@ -34,8 +34,8 @@ total 7/15 (key says 9)   confidence 0.95   review false   repaired false
 evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
 
 disagreements with the error key: 2
-  Q1.C5: gave 0, key says 1 — The explanation lacks logical scientific structure due to flawed physical reasoning about resistance and incorrect voltmeter placement.
-  Q2.C1: gave 0, key says 1 — The student presents contradictory positions in the introduction and conclusion.
+  Q1.C5: gave 0, key says 1 - The explanation lacks logical scientific structure due to flawed physical reasoning about resistance and incorrect voltmeter placement.
+  Q2.C1: gave 0, key says 1 - The student presents contradictory positions in the introduction and conclusion.
 UNAMBIGUOUS CRITERIA WRONG: Q2.C1
 
 ====================================================================================================
@@ -64,7 +64,7 @@ total 8/15 (key says 9)   confidence 0.97   review false   repaired false
 evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
 
 disagreements with the error key: 1
-  Q1.C5: gave 0, key says 1 — The diagram has labels and direction arrows, but the scientific explanation contains contradictory and illogical conclusions.
+  Q1.C5: gave 0, key says 1 - The diagram has labels and direction arrows, but the scientific explanation contains contradictory and illogical conclusions.
 all six unambiguous criteria agree with the key
 
 ====================================================================================================
@@ -93,7 +93,7 @@ total 8/15 (key says 9)   confidence 0.94   review false   repaired false
 evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
 
 disagreements with the error key: 1
-  Q1.C5: gave 0, key says 1 — The student presents labels and arrows, but the logical structure of the explanation is compromised by incorrect scientific reasoning and incorrect meter placement.
+  Q1.C5: gave 0, key says 1 - The student presents labels and arrows, but the logical structure of the explanation is compromised by incorrect scientific reasoning and incorrect meter placement.
 all six unambiguous criteria agree with the key
 
 ====================================================================================================

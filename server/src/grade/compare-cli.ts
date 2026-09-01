@@ -45,7 +45,7 @@ const EXPECTED: Record<
     // grader, which caught the discrepancy on a blind run.
     marks: { ...allOnes, "Q1.C5": 0 },
     band: [14, 14],
-    note: "fully correct prose worded unlike the model answer — any mark lost outside Q1.C5 means the grader is rewarding resemblance",
+    note: "fully correct prose worded unlike the model answer - any mark lost outside Q1.C5 means the grader is rewarding resemblance",
   },
   "student_answer_C.pdf": {
     marks: {
@@ -54,7 +54,7 @@ const EXPECTED: Record<
       "Q3.C1": 1, "Q3.C2": 0, "Q3.C3": 0, "Q3.C4": 0, "Q3.C5": 0,
     },
     band: [3, 3],
-    note: "mostly incorrect — but C1 of each question is met, so a grader must not mark the whole question down",
+    note: "mostly incorrect - but C1 of each question is met, so a grader must not mark the whole question down",
   },
   "student_answer_E.pdf": {
     // Reuses B's diagrams, so it inherits B's Q1.C5 discrepancy.
@@ -91,7 +91,7 @@ for (let run = 1; run <= runs; run++) {
   console.log("=".repeat(100));
 
   if (!outcome.ok) {
-    console.log(`FAILED: ${outcome.error.code} — ${outcome.error.message}`);
+    console.log(`FAILED: ${outcome.error.code} - ${outcome.error.message}`);
     continue;
   }
 
@@ -158,7 +158,7 @@ for (let run = 1; run <= runs; run++) {
     console.log(`\ndisagreements with the expected key: ${disagreements.length}`);
     for (const c of disagreements) {
       console.log(
-        `  ${c.criterionId}: gave ${c.awarded}, expected ${ERROR_KEY[c.criterionId]} — ${c.reasoning}`,
+        `  ${c.criterionId}: gave ${c.awarded}, expected ${ERROR_KEY[c.criterionId]} - ${c.reasoning}`,
       );
     }
   } else {

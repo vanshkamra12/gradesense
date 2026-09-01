@@ -84,7 +84,7 @@ describe("rubric parsed from model_answer.pdf", () => {
       expect(answer.text.split(/\s+/).length).toBeGreaterThan(100);
     }
 
-    // Reference material, not criterion text — the two must not bleed together.
+    // Reference material, not criterion text - the two must not bleed together.
     const q3 = rubric.modelAnswers[2]!.text;
     expect(q3).toContain("intersect at a price of ₹30 and a quantity of 60 units");
     for (const criterion of rubric.criteria) {

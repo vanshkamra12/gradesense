@@ -39,7 +39,7 @@ function colourFor(criterion: EnforcedCriterion): Annotation["color"] {
  * - "unverifiable" the model quoted something that is not in the answer, and
  *                  enforcement removed it. This gets an annotation with no
  *                  rectangle, so the finding is listed as unplaced rather than
- *                  disappearing — a teacher needs to know a finding exists that
+ *                  disappearing - a teacher needs to know a finding exists that
  *                  we could not position. What it does not get is a figure
  *                  anchor: placing it on the drawing would be inventing a
  *                  position for a quote that was already invented once, a

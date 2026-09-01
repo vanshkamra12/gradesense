@@ -68,7 +68,7 @@ describe("extractPdf on student_answer_D", () => {
     expect(doc.pages).toHaveLength(1);
     expect(doc.pages[0]!.images).toHaveLength(0);
 
-    // The sheet is blank in the sense that matters — the student wrote nothing —
+    // The sheet is blank in the sense that matters - the student wrote nothing -
     // but it is pre-printed with the three question headings, which is 53
     // non-whitespace characters. A raw character count would sail past the
     // spec's ~40 threshold and send a blank page to the model. The stage 8

@@ -1,4 +1,4 @@
-GradeSense — blind validation runs: Scripts B, C and E
+GradeSense - blind validation runs: Scripts B, C and E
 Model:   gemini-3.6-flash
 Command: GRADE_PROVIDER=gemini npm run compare --workspace server -- 1 <script>
 
@@ -17,10 +17,10 @@ allowance was spent. Regenerate with:
   GRADE_PROVIDER=gemini npm run compare --workspace server -- 2 student_answer_B.pdf
 
 The expected marks come from fixtures/scripts_B_C_E.md. The B and E keys were
-corrected after round 1 to expect Q1.C5 = 0 — see the note at the end.
+corrected after round 1 to expect Q1.C5 = 0 - see the note at the end.
 
 ==============================================================================
-ROUND 1 — first blind run
+ROUND 1 - first blind run
 ==============================================================================
 
 script: student_answer_B.pdf
@@ -48,7 +48,7 @@ total 14/15   confidence 0.96   review false   repaired false   44.8s
 evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
 
 disagreements with the expected key: 1
-  Q1.C5: gave 0, expected 1 — The criterion requires current direction in the
+  Q1.C5: gave 0, expected 1 - The criterion requires current direction in the
   diagram. While the text states an arrow was drawn, inspection of the diagram
   reveals no directional arrow for current.
 
@@ -107,11 +107,11 @@ total 14/15 (expected 13-15, IN BAND)   confidence 0.95   review false   repaire
 evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
 
 disagreements with the expected key: 1
-  Q1.C5: gave 0, expected 1 — The written text claims an arrow was drawn, but
+  Q1.C5: gave 0, expected 1 - The written text claims an arrow was drawn, but
   the actual diagram lacks a directional arrow for current flow.
 
 ==============================================================================
-ROUND 2 — summary only
+ROUND 2 - summary only
 ==============================================================================
 
 Run against the corrected key (B and E expecting Q1.C5 = 0). Only the summary
@@ -121,14 +121,14 @@ student_answer_B.pdf
   total 15/15 (expected 14, OUT OF BAND)  confidence 0.95  review false
   evidence: 15 located, 0 stripped, 0 offered no quote
   disagreements: 1
-    Q1.C5: gave 1, expected 0 — Diagram contains proper labels, component
+    Q1.C5: gave 1, expected 0 - Diagram contains proper labels, component
     symbols, and current direction marker, paired with clear text.
 
 student_answer_C.pdf
   total 4/15 (expected 3, OUT OF BAND)  confidence 0.96  review false
   evidence: 13 located, 0 stripped, 2 offered no quote
   disagreements: 1
-    Q2.C5: gave 1, expected 0 — The student provided a coherent conclusion that
+    Q2.C5: gave 1, expected 0 - The student provided a coherent conclusion that
     follows from their discussion.
 
 student_answer_E.pdf
@@ -137,13 +137,13 @@ student_answer_E.pdf
   disagreements: 0
 
 ==============================================================================
-NOTE — why the key was corrected, and why round 2 is wrong about it
+NOTE - why the key was corrected, and why round 2 is wrong about it
 ==============================================================================
 
 Script B's Q1 states: "I have marked this direction with an arrow in my
 diagram." The hand-drawn circuit photographed for B contains a battery, switch,
 resistor, ammeter, bulb and a voltmeter in parallel across the bulb, all
-correctly drawn and labelled — and no current-direction arrow anywhere.
+correctly drawn and labelled - and no current-direction arrow anywhere.
 
 That was verified by rendering page 1 at 6x and inspecting the cropped diagram
 directly, not by taking the grader's word for it. Script A's diagram, by

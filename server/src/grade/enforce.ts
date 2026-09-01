@@ -27,9 +27,9 @@ export type EnforcedCriterion = {
   /** True when enforcement changed this criterion in any way. */
   adjusted: boolean;
   /**
-   * "verified"     — carries a quote that was found in the student's text.
-   * "unverifiable" — the model quoted something absent, and it was removed.
-   * "absent"       — no quote was offered: a missing point, or a finding about
+   * "verified"     - carries a quote that was found in the student's text.
+   * "unverifiable" - the model quoted something absent, and it was removed.
+   * "absent"       - no quote was offered: a missing point, or a finding about
    *                  a drawing that has no text to quote.
    *
    * The last two both leave `evidence` null, but they are not the same thing,
@@ -41,7 +41,7 @@ export type EnforcedCriterion = {
 };
 
 /**
- * A limit imposed by something enforcement cannot see in the response itself —
+ * A limit imposed by something enforcement cannot see in the response itself -
  * currently only that too little text was extracted to trust the marking.
  */
 export type Caveat = {
@@ -94,7 +94,7 @@ export function enforce(input: {
   for (const result of response.criteria) {
     if (returned.has(result.criterionId)) {
       discardAdjustments.push(
-        `${result.criterionId}: the model returned more than one result for this criterion — the first was kept and the rest discarded.`,
+        `${result.criterionId}: the model returned more than one result for this criterion - the first was kept and the rest discarded.`,
       );
       continue;
     }
@@ -105,7 +105,7 @@ export function enforce(input: {
   for (const id of returned.keys()) {
     if (!rubricIds.has(id)) {
       discardAdjustments.push(
-        `${id}: not a criterion in the marking scheme — the model's result for it was discarded.`,
+        `${id}: not a criterion in the marking scheme - the model's result for it was discarded.`,
       );
     }
   }
@@ -117,7 +117,7 @@ export function enforce(input: {
 
     if (!result) {
       criterionAdjustments.push(
-        `${criterion.id}: the model returned no result for this criterion — recorded as 0 of ${criterion.maxMarks}, missing, with no confidence.`,
+        `${criterion.id}: the model returned no result for this criterion - recorded as 0 of ${criterion.maxMarks}, missing, with no confidence.`,
       );
       return {
         criterionId: criterion.id,
@@ -156,7 +156,7 @@ export function enforce(input: {
     if (!Number.isInteger(awarded)) {
       const floored = Math.floor(awarded);
       criterionAdjustments.push(
-        `${criterion.id}: awarded ${awarded}, which is not a whole mark — floored to ${floored}, since a criterion that is only partly met earns nothing.`,
+        `${criterion.id}: awarded ${awarded}, which is not a whole mark - floored to ${floored}, since a criterion that is only partly met earns nothing.`,
       );
       awarded = floored;
       adjusted = true;
@@ -164,19 +164,19 @@ export function enforce(input: {
 
     if (awarded > criterion.maxMarks) {
       criterionAdjustments.push(
-        `${criterion.id}: awarded ${awarded} of a maximum ${criterion.maxMarks} — clamped to ${criterion.maxMarks}.`,
+        `${criterion.id}: awarded ${awarded} of a maximum ${criterion.maxMarks} - clamped to ${criterion.maxMarks}.`,
       );
       awarded = criterion.maxMarks;
       adjusted = true;
     } else if (awarded < 0) {
-      criterionAdjustments.push(`${criterion.id}: awarded ${awarded}, below zero — clamped to 0.`);
+      criterionAdjustments.push(`${criterion.id}: awarded ${awarded}, below zero - clamped to 0.`);
       awarded = 0;
       adjusted = true;
     }
 
     // A quote with no counterpart in the answer cannot be shown to the student
     // as evidence, and cannot be located on the page. A finding with no quote at
-    // all is allowed — a missing point, or something only the diagram shows.
+    // all is allowed - a missing point, or something only the diagram shows.
     if (evidence !== null) {
       // The same matcher that places the quote on the page decides whether it
       // is real. A quote the locator could find is not a hallucination.
@@ -185,7 +185,7 @@ export function enforce(input: {
       } else {
         const lowered = Math.min(confidence, UNVERIFIED_EVIDENCE_CONFIDENCE);
         criterionAdjustments.push(
-          `${criterion.id}: the quoted evidence does not appear anywhere in the student's answer — the quote was removed as unverifiable and confidence lowered from ${round(confidence)} to ${round(lowered)}.`,
+          `${criterion.id}: the quoted evidence does not appear anywhere in the student's answer - the quote was removed as unverifiable and confidence lowered from ${round(confidence)} to ${round(lowered)}.`,
         );
         evidence = null;
         confidence = lowered;
@@ -217,7 +217,7 @@ export function enforce(input: {
 
   if (response.total !== undefined && response.total !== total) {
     responseAdjustments.push(
-      `The model returned a total of ${response.total}. Totals are never taken from the model — recomputed from the criterion marks as ${total} of ${maxTotal}.`,
+      `The model returned a total of ${response.total}. Totals are never taken from the model - recomputed from the criterion marks as ${total} of ${maxTotal}.`,
     );
   }
 

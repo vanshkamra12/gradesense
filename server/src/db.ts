@@ -11,7 +11,7 @@ import type { ExtractedDocument } from "./pdf/extract.js";
 /**
  * Schema note: `annotations` references `results`, never `criterion_results`.
  * There is deliberately no path by which writing a grading result can rewrite
- * annotations — a teacher's edits are theirs, and re-grading produces a new
+ * annotations - a teacher's edits are theirs, and re-grading produces a new
  * result rather than mutating an old one's boxes. `criterion_id` is plain text
  * with no foreign key for the same reason.
  */
@@ -160,7 +160,7 @@ export function closeDatabase(): void {
 /**
  * Writes the upload under the hash of its own bytes and makes it read-only.
  * The same file uploaded twice lands on the same path and is not rewritten, so
- * an original can never be modified by a later run — export always produces a
+ * an original can never be modified by a later run - export always produces a
  * new file elsewhere.
  */
 export function storeOriginal(bytes: Uint8Array): { id: string; storagePath: string } {

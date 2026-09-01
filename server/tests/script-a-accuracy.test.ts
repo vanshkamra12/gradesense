@@ -26,8 +26,8 @@ const MUST_BE_ZERO = ["Q1.C2", "Q1.C4", "Q2.C5", "Q3.C2", "Q3.C3", "Q3.C5"];
 
 /**
  * Q1.C5 is deliberately absent from every assertion below. The error key names
- * it as genuinely arguable — the answer is well laid out but contains a
- * contradictory claim — and it is the one criterion that varies between runs.
+ * it as genuinely arguable - the answer is well laid out but contains a
+ * contradictory claim - and it is the one criterion that varies between runs.
  * Pinning it would make this test a record of one run rather than a check on
  * marking.
  */
@@ -52,7 +52,7 @@ describe.skipIf(!live)("Script A against the real provider", () => {
       }
 
       // The controls: surface errors and a contrarian position cost nothing.
-      // Q2.C1-C4 are the single most important check in the error key — a
+      // Q2.C1-C4 are the single most important check in the error key - a
       // grader marking by similarity to the model answer fails here.
       for (const id of ["Q2.C1", "Q2.C2", "Q2.C3", "Q2.C4"]) {
         expect(marks.get(id), `${id} lost a mark for arguing against the model answer`).toBe(1);

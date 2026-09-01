@@ -69,8 +69,8 @@ Return the same marking as one JSON object matching the schema above exactly.
 Output only the JSON object. No prose, no explanation, no markdown code fences.`;
 
 export async function gradeDocument(
-  // A bare Uint8Array is the common case — grade this answer against the
-  // bundled scheme — so it is accepted directly rather than forcing every
+  // A bare Uint8Array is the common case - grade this answer against the
+  // bundled scheme - so it is accepted directly rather than forcing every
   // caller to wrap it.
   input: Uint8Array | GradeInputs,
   provider: GradeProvider,
@@ -84,7 +84,7 @@ export async function gradeDocument(
   };
 
   // An uploaded marking scheme is parsed for this run. If it cannot be read the
-  // run fails and says what was missing — falling back to the bundled scheme
+  // run fails and says what was missing - falling back to the bundled scheme
   // would mark the paper against a rubric nobody asked for.
   let rubric: Rubric;
   try {

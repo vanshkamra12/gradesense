@@ -1,7 +1,7 @@
 /**
  * The eight cases the build spec requires, all offline against the mock.
  *
- * These verify the PIPELINE — enforcement, clamping, evidence verification,
+ * These verify the PIPELINE - enforcement, clamping, evidence verification,
  * locating, error handling. They cannot verify grading QUALITY, because the
  * answers are supplied by a mock. Where a case looks like an accuracy check,
  * the assertion is about what the system does with an answer, not about whether
@@ -68,7 +68,7 @@ describe("1. a fully correct answer", () => {
   }, 30_000);
 });
 
-describe("2. a partially correct answer — Script A", () => {
+describe("2. a partially correct answer - Script A", () => {
   // NOTE: the marks here come from the mock, which was written to mirror the
   // error key. This asserts the pipeline carries per-criterion marks through
   // to a total and locates their evidence. Whether a model actually awards
@@ -299,7 +299,7 @@ describe("8. a score exceeding the maximum", () => {
     expect(result.total).not.toBe(99);
     expect(result.maxTotal).toBe(15);
 
-    expect(result.adjustments).toContain("Q1.C1: awarded 2 of a maximum 1 — clamped to 1.");
+    expect(result.adjustments).toContain("Q1.C1: awarded 2 of a maximum 1 - clamped to 1.");
     expect(
       result.adjustments.some((a) => a.includes("Totals are never taken from the model")),
     ).toBe(true);

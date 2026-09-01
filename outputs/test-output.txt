@@ -1,7 +1,7 @@
-GradeSense — test suite output
+GradeSense - test suite output
 Generated: 2026-09-01 18:37 UTC
 
-SECTION 1 — offline suite (npm test)
+SECTION 1 - offline suite (npm test)
 Runs against the mock provider. No API key, no network. This verifies the
 pipeline: enforcement, clamping, evidence verification, locating, persistence,
 annotation editing, export, uploaded-document handling and error handling. It
@@ -100,7 +100,7 @@ cannot verify grading quality, which is section 2.
  ✓ tests/guard.test.ts > blank answer through the pipeline > scores zero at full confidence with no review flag 46ms
  ✓ tests/guard.test.ts > a real handwritten answer through the pipeline > has no extractable text and a single page image 110ms
  ✓ tests/export.test.ts > annotated PDF export > leaves the stored original byte-identical and still read-only 44ms
- ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > carries the per-criterion marks through to a total in the 8-10 band 923ms
+ ✓ tests/required-cases.test.ts > 2. a partially correct answer - Script A > carries the per-criterion marks through to a total in the 8-10 band 923ms
  ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > verifies evidence against the real extracted text 967ms
  ✓ tests/db.test.ts > saveGradeRun and getResult > keeps the adjustments and review reasons 950ms
  ✓ tests/gemini.test.ts > the provider against a stub endpoint > fails cleanly when both attempts fail 1511ms
@@ -109,7 +109,7 @@ cannot verify grading quality, which is section 2.
  ✓ tests/export.test.ts > annotated PDF export > coordinates carry over unchanged > draws the box where the rect says, in image space 730ms
  ✓ tests/pipeline.test.ts > gradeDocument against the mock > surfaces a structured error when the provider fails, with nothing partial 1026ms
  ✓ tests/provider.test.ts > mock provider > offers exactly the five modes 2ms
- ✓ tests/provider.test.ts > mock provider > is deterministic — the same mode returns the same bytes 152ms
+ ✓ tests/provider.test.ts > mock provider > is deterministic - the same mode returns the same bytes 152ms
  ✓ tests/provider.test.ts > mock provider > contains no timestamps or other varying values 0ms
  ✓ tests/provider.test.ts > mock provider > valid mode > returns all 15 criteria, with IDs taken from the parsed rubric 0ms
  ✓ tests/provider.test.ts > mock provider > valid mode > quotes evidence verbatim from the extracted student answer 1ms
@@ -152,7 +152,7 @@ cannot verify grading quality, which is section 2.
  ✓ tests/rubric.test.ts > parseRubric error handling > refuses a rubric row with no mark 0ms
  ✓ tests/rubric.test.ts > determinism > produces an identical rubric on a second parse 1ms
  ✓ tests/enforce.test.ts > overmax mode through the whole pipeline > leaves a clean run unadjusted and unflagged 963ms
- ✓ tests/required-cases.test.ts > 2. a partially correct answer — Script A > locates every piece of evidence on the page 971ms
+ ✓ tests/required-cases.test.ts > 2. a partially correct answer - Script A > locates every piece of evidence on the page 971ms
  ↓ tests/script-a-accuracy.test.ts > Script A against the real provider > reproduces the error key: six criteria at zero, total in the 8-10 band
  ✓ tests/script-a-accuracy.test.ts > Script A accuracy check > is skipped without a live provider, and says so 1ms
  ✓ tests/db.test.ts > listHistory > lists persisted runs with their scores and annotation counts 992ms
@@ -190,7 +190,7 @@ cannot verify grading quality, which is section 2.
 
 ==============================================================================
 
-SECTION 2 — live accuracy check against the real provider
+SECTION 2 - live accuracy check against the real provider
 Command: GRADE_PROVIDER=gemini npx vitest run tests/script-a-accuracy.test.ts
 
 The only test that says anything about grading quality. It grades Script A with
@@ -229,7 +229,7 @@ KNOWN LIMITATIONS OBSERVED WHILE PRODUCING THIS OUTPUT
 
 3. Q2.C1 scored 0 in one run out of six (observed rate 1 in 6), total 7.
    The stated reason was "the student presents contradictory positions in the
-   introduction and conclusion" — that is the Q2.C5 error being counted against
+   introduction and conclusion" - that is the Q2.C5 error being counted against
    Q2.C1 as well, which the prompt's independence rule forbids. It is not the
    failure the error key warns about most (the contrarian position was still
    credited in every run), but it is criterion bleed, and it puts the total one
@@ -245,7 +245,7 @@ See outputs/gemini-runs-script-a.txt for the per-run detail.
 
 ==============================================================================
 
-BLIND VALIDATION — SCRIPTS B, C, E AND F
+BLIND VALIDATION - SCRIPTS B, C, E AND F
 
 Only Script A was used while the prompt was being built. Scripts B, C, E and F
 were held back and run once against the finished grader. Nothing was tuned
@@ -278,7 +278,7 @@ scripts were for:
   written criteria. The grader is marking reasoning rather than resemblance.
 
   C scored exactly 3/15 with zero disagreements, keeping Q1.C1, Q2.C1 and Q3.C1
-  at 1 while marking everything else in those same questions 0 — so a mostly
+  at 1 while marking everything else in those same questions 0 - so a mostly
   wrong question does not drag its correct criterion down with it.
 
 A third limitation, found during this validation:
@@ -287,7 +287,7 @@ A third limitation, found during this validation:
    On a second run of Script B it awarded Q1.C5 on the grounds that the diagram
    "contains ... current direction marker". It does not; the drawing was checked
    directly. This is worse than an unstable judgement, because the reasoning
-   cites evidence that does not exist, and nothing downstream can catch it —
+   cites evidence that does not exist, and nothing downstream can catch it -
    evidence verification only checks quotes against the extracted text, and a
    claim about a drawing has no quote to check.
 

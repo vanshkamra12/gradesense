@@ -47,7 +47,7 @@ npm run dev:web                      # http://localhost:5173
 
 Open http://localhost:5173, upload `fixtures/student_answer_A.pdf`, and you get
 a marked page with a per-criterion breakdown beside it. That works offline
-against the mock provider — no key required.
+against the mock provider - no key required.
 
 Try `fixtures/student_answer_D.pdf` (a blank sheet) and
 `fixtures/student_answer_F.pdf` (a handwritten scan) to see the two guards.
@@ -67,7 +67,7 @@ GEMINI_API_KEY=your-key-here
 GEMINI_MODEL=gemini-3.5-flash        # the default
 ```
 
-Any vision-capable Gemini model works — the scripts contain hand-drawn diagrams
+Any vision-capable Gemini model works - the scripts contain hand-drawn diagrams
 that have to be read. Availability varies a lot by project and billing tier, so
 check what your key can actually reach rather than assuming a name works:
 
@@ -76,8 +76,8 @@ check what your key can actually reach rather than assuming a name works:
 | `404` | the model is retired for new API users | no |
 | `403` | the model is not enabled for your project | no |
 | `429` with `limit: 0` | your tier grants no quota for it; needs billing | no |
-| `429` with a real quota | ordinary rate limiting | yes — the provider retries once |
-| `503` | the model is overloaded | yes — the provider retries once |
+| `429` with a real quota | ordinary rate limiting | yes - the provider retries once |
+| `503` | the model is overloaded | yes - the provider retries once |
 
 The provider retries once on 408/429/500/502/503/504 and network faults, and
 fails immediately on 400/401/403/404, since retrying a refusal only hides the
@@ -98,8 +98,8 @@ GRADE_PROVIDER=gemini npm run compare --workspace server -- 3   # three runs
 ```
 
 Prints every criterion's mark, finding type, confidence and evidence quote
-beside `fixtures/error_key_script_a.md`, names the disagreements, and — with a
-count above 1 — shows which criteria stayed stable between runs.
+beside `fixtures/error_key_script_a.md`, names the disagreements, and - with a
+count above 1 - shows which criteria stayed stable between runs.
 
 ## Environment variables
 
@@ -111,9 +111,9 @@ All read in one place, `server/src/config.ts`. `.env` is gitignored;
 | `PORT` | `3001` | API port |
 | `GRADE_PROVIDER` | `mock` | `mock` or `gemini` |
 | `MOCK_MODE` | `valid` | `valid`, `malformed`, `overmax`, `throws`, `badEvidence` |
-| `GEMINI_API_KEY` | — | required only when `GRADE_PROVIDER=gemini` |
+| `GEMINI_API_KEY` | - | required only when `GRADE_PROVIDER=gemini` |
 | `GEMINI_MODEL` | `gemini-3.5-flash` | any vision-capable Gemini model |
-| `GEMINI_BASE_URL` | — | points the provider at a stub endpoint, for tests |
+| `GEMINI_BASE_URL` | - | points the provider at a stub endpoint, for tests |
 | `DB_PATH` | `server/data/gradesense.sqlite` | SQLite file |
 | `STORAGE_DIR` | `server/storage` | uploaded originals and generated files |
 
@@ -131,7 +131,7 @@ API quota.
 
 The suite is in two parts, on purpose:
 
-- **Offline tests** verify the *pipeline* — enforcement, clamping, evidence
+- **Offline tests** verify the *pipeline* - enforcement, clamping, evidence
   verification, locating, persistence, annotation editing, export, error
   handling. They cannot verify grading quality, because the answers come from a
   mock.
@@ -180,12 +180,12 @@ correct something, and on a clean run there is nothing to correct.
 
 **Criterion bleed on Q2.C1, at an observed rate of about 1 run in 6.** The model
 sometimes marks "presents a clear position" down because the *conclusion*
-contradicts it — the Q2.C5 error charged twice. When it happens the total falls
+contradicts it - the Q2.C5 error charged twice. When it happens the total falls
 to 7, one below the expected 8–10 band. The accuracy test asserts Q2.C1–C4 score
 1, so it fails on such a run rather than hiding it. That assertion is kept
 strict deliberately: a suite that fails one run in six and names the reason is
 worth more than a green one that conceals the problem.
 
 Grading quality depends on the model. The figures in `outputs/` were produced on
-`gemini-3.6-flash` and `gemini-3.5-flash` — each file names the model it used.
+`gemini-3.6-flash` and `gemini-3.5-flash` - each file names the model it used.
 The pro tiers returned `429` with `limit: 0` on the key available here.

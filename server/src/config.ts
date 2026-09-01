@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-// src/ during dev, dist/ after a build — both are one level under server/.
+// src/ during dev, dist/ after a build - both are one level under server/.
 export const serverRoot = path.resolve(here, "..");
 export const repoRoot = path.resolve(serverRoot, "..");
 

@@ -11,7 +11,7 @@ process.env.STORAGE_DIR = path.join(root, "storage");
 /**
  * vitest does not read server/.env the way the CLI scripts do, so without this
  * the live accuracy test could never see GEMINI_API_KEY and would silently skip
- * — reporting a pass while proving nothing, which is the failure mode the
+ * - reporting a pass while proving nothing, which is the failure mode the
  * separation of these tests exists to avoid.
  *
  * Anything already set on the command line wins, so `GRADE_PROVIDER=mock` still

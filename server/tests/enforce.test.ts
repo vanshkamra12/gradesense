@@ -49,7 +49,7 @@ describe("enforce", () => {
 
       expect(result.criteria.find((c) => c.criterionId === "Q1.C1")!.awarded).toBe(1);
       expect(result.adjustments).toContain(
-        "Q1.C1: awarded 2 of a maximum 1 — clamped to 1.",
+        "Q1.C1: awarded 2 of a maximum 1 - clamped to 1.",
       );
     });
 
@@ -57,7 +57,7 @@ describe("enforce", () => {
       const result = run(fullResponse({ criterionId: "Q2.C2", awarded: -3 }));
 
       expect(result.criteria.find((c) => c.criterionId === "Q2.C2")!.awarded).toBe(0);
-      expect(result.adjustments).toContain("Q2.C2: awarded -3, below zero — clamped to 0.");
+      expect(result.adjustments).toContain("Q2.C2: awarded -3, below zero - clamped to 0.");
     });
 
     // The prompt says a half-met criterion scores 0. Rounding 0.5 up here would
@@ -67,7 +67,7 @@ describe("enforce", () => {
 
       expect(result.criteria.find((c) => c.criterionId === "Q3.C5")!.awarded).toBe(0);
       expect(result.adjustments).toContain(
-        "Q3.C5: awarded 0.5, which is not a whole mark — floored to 0, since a criterion that is only partly met earns nothing.",
+        "Q3.C5: awarded 0.5, which is not a whole mark - floored to 0, since a criterion that is only partly met earns nothing.",
       );
     });
 
@@ -86,7 +86,7 @@ describe("enforce", () => {
       expect(result.total).toBe(15); // 14 ones plus the clamped one
       expect(result.maxTotal).toBe(15);
       expect(result.adjustments).toContain(
-        "The model returned a total of 99. Totals are never taken from the model — recomputed from the criterion marks as 15 of 15.",
+        "The model returned a total of 99. Totals are never taken from the model - recomputed from the criterion marks as 15 of 15.",
       );
     });
 
@@ -111,7 +111,7 @@ describe("enforce", () => {
       expect(result.criteria).toHaveLength(15);
       expect(filled).toMatchObject({ awarded: 0, findingType: "missing", confidence: 0, evidence: null });
       expect(result.adjustments).toContain(
-        "Q2.C3: the model returned no result for this criterion — recorded as 0 of 1, missing, with no confidence.",
+        "Q2.C3: the model returned no result for this criterion - recorded as 0 of 1, missing, with no confidence.",
       );
     });
 
@@ -124,7 +124,7 @@ describe("enforce", () => {
       expect(result.criteria.map((c) => c.criterionId)).not.toContain("Q4.C1");
       expect(result.criteria).toHaveLength(15);
       expect(result.adjustments).toContain(
-        "Q4.C1: not a criterion in the marking scheme — the model's result for it was discarded.",
+        "Q4.C1: not a criterion in the marking scheme - the model's result for it was discarded.",
       );
     });
 
@@ -136,7 +136,7 @@ describe("enforce", () => {
 
       expect(result.criteria.find((c) => c.criterionId === "Q1.C1")!.feedback).toBe("Fine.");
       expect(result.adjustments).toContain(
-        "Q1.C1: the model returned more than one result for this criterion — the first was kept and the rest discarded.",
+        "Q1.C1: the model returned more than one result for this criterion - the first was kept and the rest discarded.",
       );
     });
 
@@ -162,7 +162,7 @@ describe("enforce", () => {
       expect(stripped.evidenceStatus).toBe("unverifiable");
       expect(stripped.confidence).toBeLessThanOrEqual(0.2);
       expect(result.adjustments).toContain(
-        "Q1.C2: the quoted evidence does not appear anywhere in the student's answer — the quote was removed as unverifiable and confidence lowered from 0.9 to 0.2.",
+        "Q1.C2: the quoted evidence does not appear anywhere in the student's answer - the quote was removed as unverifiable and confidence lowered from 0.9 to 0.2.",
       );
     });
 
