@@ -223,13 +223,17 @@ KNOWN LIMITATIONS OBSERVED WHILE PRODUCING THIS OUTPUT
    only lowers confidence when it has had to correct something, and on a clean
    run there is nothing to correct.
 
-3. Q2.C1 scored 0 in one run out of six, taking the total to 7.
+3. Q2.C1 scored 0 in one run out of six (observed rate 1 in 6), total 7.
    The stated reason was "the student presents contradictory positions in the
    introduction and conclusion" — that is the Q2.C5 error being counted against
    Q2.C1 as well, which the prompt's independence rule forbids. It is not the
    failure the error key warns about most (the contrarian position was still
    credited in every run), but it is criterion bleed, and it puts the total one
    mark below the 8-10 band when it happens. The accuracy test asserts
-   Q2.C1-C4 score 1, so it will fail on such a run rather than hide it.
+   Q2.C1-C4 score 1, so it fails on such a run rather than hiding it. That
+   assertion is kept strict on purpose: a suite that fails one run in six and
+   names the reason is worth more than a green one that hides criterion bleed.
+   Expect roughly one failure per six live runs until the underlying prompt or
+   model behaviour changes.
 
 See outputs/gemini-runs-script-a.txt for the per-run detail.

@@ -1,7 +1,84 @@
 # Architecture
 
-Written up as it gets built. Stage 1 records only the shape of the repo and the
-decisions already made; later stages fill in the pipeline sections.
+## What this is
+
+GradeSense marks a scanned or typed answer script against a fixed marking
+scheme, and puts each finding on the page where the evidence for it sits.
+
+The design problem is not "call a model and show the answer". It is that a
+language model will confidently produce a mark it cannot justify, a quote that
+does not exist, and a coordinate it invented. So the system is arranged around a
+single idea: **the model is asked only for the judgement it can actually make,
+and everything checkable is checked in code.**
+
+The model reads the script and decides, criterion by criterion, whether each
+point was made, quoting the student's own words as evidence. It is never asked
+for a total, a coordinate, or a position. Totals are arithmetic. Positions are
+string matching. Both are done here, where they can be verified.
+
+## The five rules, and where each one lives
+
+These are the correctness requirements. Each is enforced in code, not asked for
+in the prompt:
+
+| rule | enforced in |
+|---|---|
+| A criterion's mark can never exceed its maximum | `grade/enforce.ts` — clamped against the parsed rubric |
+| The total is the sum of the criteria | `grade/enforce.ts` — recomputed; a model-supplied total is reported and discarded |
+| Every finding carries evidence, or is marked missing | `grade/enforce.ts` — quotes verified against the extracted text |
+| The uploaded PDF is never modified | `db.ts` stores it `0444` under its own sha256; `annotate/export.ts` writes a new file |
+| When uncertain, the system says so | confidence and `needsHumanReview` on every result, with reasons in plain language |
+
+## How a grade run flows
+
+```
+upload PDF
+  |
+  +-- pdf/extract.ts     text + per-item boxes + page sizes + image boxes
+  +-- pdf/render.ts      one PNG per page, 2x
+  |
+  +-- grade/guard.ts     blank? unclear? a blank sheet stops here, unmarked,
+  |                      with no model call at all
+  |
+  +-- grade/prompt.ts    marking scheme + guidance + model answer as reference
+  |                      + student text, then page images, then the output
+  |                      contract — as an ordered PromptPart[]
+  |
+  +-- grade/provider.ts  mock or Gemini, behind one interface
+  |
+  +-- grade/schema.ts    strip fences, parse, validate; one repair retry
+  |
+  +-- grade/enforce.ts   clamp, fill omissions, drop inventions, recompute the
+  |                      total, verify every quote, set confidence and the
+  |                      review flag, and record every change made
+  |
+  +-- annotate/locate.ts each quote -> rectangles on the page, or unplaced
+  |
+  +-- db.ts              persist the run; annotations in their own table
+  |
+  +-- web/               page on the left, explanation on the right, both linked
+  +-- annotate/export.ts a new annotated PDF, original untouched
+```
+
+## Where to look
+
+| file | does |
+|---|---|
+| `server/src/pdf/extract.ts` | text with coordinates; the `charStart` contract |
+| `server/src/pdf/render.ts` | pages to PNG for the model to read diagrams |
+| `server/src/grade/rubric.ts` | parses the 15 criteria and the guidance blocks |
+| `server/src/grade/prompt.ts` | assembles the request |
+| `server/src/grade/provider.ts` | the `GradeProvider` interface and the mock |
+| `server/src/grade/gemini.ts` | the real provider |
+| `server/src/grade/enforce.ts` | every hard rule |
+| `server/src/grade/guard.ts` | blank and unclear answers |
+| `server/src/annotate/locate.ts` | quote to bounding box |
+| `server/src/annotate/export.ts` | the annotated PDF |
+| `server/src/db.ts` | SQLite, and the split that keeps edits away from marks |
+
+The rest of this document explains each of those, and why they are the way they
+are. Sections were written as the parts were built, so several record a decision
+that was made once and should not be quietly undone.
 
 ## Workspaces
 
@@ -38,14 +115,6 @@ Uploaded originals, rendered page images, exported PDFs and the SQLite file all
 live under `server/storage/` and `server/data/`, both gitignored. The uploaded
 PDF is stored under a content-addressed name and is never written to again;
 export always produces a new file.
-
-## Grading provider
-
-A single `GradeProvider` interface with three implementations behind it — the
-real Gemini client and the mock in its several modes. This is the one
-abstraction in the codebase that has more than one implementation, which is why
-it is the one interface worth having. `GRADE_PROVIDER` selects between them and
-defaults to the mock, so the test suite runs with no API key and no network.
 
 ## PDF extraction
 
