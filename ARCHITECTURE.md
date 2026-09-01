@@ -186,3 +186,61 @@ rubric. The prompt needs it as reference material, but the rubric is what marks
 are awarded against, and keeping them in separate fields is what makes it
 possible to label them differently in the prompt. Grading by similarity to the
 model answer is the failure this whole separation exists to prevent.
+
+## Grading provider
+
+`server/src/grade/provider.ts` holds the `GradeProvider` interface and the mock.
+A provider takes a prompt and page images and returns the model's raw string.
+It does no parsing, no validation and no enforcement — those belong to code that
+must behave identically whichever provider produced the string.
+
+`GRADE_PROVIDER` selects the implementation and defaults to `mock`, so the test
+suite runs with no API key and no network.
+
+### The mock
+
+Five modes: `valid`, `malformed`, `overmax`, `throws`, `badEvidence`.
+
+`overmax` and `badEvidence` are separate modes on purpose. Clamping an
+over-maximum award and detecting a hallucinated quote are different enforcement
+paths, and folding them together would make a failure in either one look like a
+failure in the other.
+
+`overmax` exercises four paths at once: two marks on a one-mark criterion, a
+`total` of 99 that matches nothing, `Q2.C3` omitted so it has to be filled in,
+and an invented `Q4.C1` that has to be dropped.
+
+`malformed` returns truncated JSON on the first call and a parseable payload of
+the wrong shape on the second. That covers both failure kinds the spec names in
+one mode, and it walks the real repair path: parse failure, retry, schema
+failure, clean structured error. Determinism here means a given sequence of
+calls always yields the same sequence of bytes.
+
+Two properties keep the mock from drifting away from the rest of the system.
+Criterion IDs come from `loadRubric()` rather than string literals, so a change
+to rubric parsing moves the mock with it or fails loudly. And evidence quotes
+are lifted from the real extracted text of `student_answer_A.pdf` at runtime,
+by matching an anchor phrase whitespace-insensitively and expanding to the
+surrounding sentence — never written out by hand. If an anchor stops matching,
+the mock throws rather than emitting a quote that no longer exists. This is what
+lets `locate.ts` be tested end to end against realistic input, misspellings and
+mid-sentence line breaks included.
+
+The marks in `valid` mode mirror `fixtures/error_key_script_a.md` and total
+9/15, so pipeline tests run against a realistic spread rather than a uniform
+result.
+
+### What mock-backed tests prove, and what they do not
+
+Tests that run against the mock verify the **pipeline**: enforcement, clamping,
+evidence verification, locating, persistence and error handling. They cannot
+verify **grading quality**. The mock's answers are fixed, so a test asserting
+that Q1.C2 scores zero is only asserting that the mock returns what the mock was
+told to return. That the mock's marks happen to match the error key is a
+convenience for making the fixtures realistic, not evidence of anything.
+
+Grading quality is a separate question with a separate answer: grade Script A
+with the real provider and compare against `fixtures/error_key_script_a.md`.
+That check belongs in an integration test that skips cleanly when
+`GEMINI_API_KEY` is absent, kept apart from the unit suite, so that the suite
+never appears to prove more than it does.
