@@ -362,5 +362,63 @@ was adjusted, or when the response was repaired — and `reviewReasons` says whi
 of those it was, in the same plain language as the adjustments.
 
 A high-confidence result with one clamped criterion still goes to review. The
-model being sure of itself is not evidence about the thing that had to be
+model being sure of itself says nothing about the thing that had to be
 corrected.
+
+Fractional marks are floored rather than rounded, for the same reason. The
+prompt tells the model that a criterion only half met scores 0, so rounding 0.5
+up in enforcement would mean the prompt and the enforcement stated two different
+rules. A reviewer reading both should find one.
+
+## Blank and unclear answers
+
+`guard.ts` decides, before any model call, whether a sheet is worth grading.
+
+### Discounting the pre-printed scaffolding
+
+The answer sheet is printed from the question paper, so the question headings
+are on the page before the student writes anything. A raw character count is
+therefore not a measure of what the student wrote: the blank fixture carries 53
+non-whitespace characters of headings alone, comfortably past the spec's ~40
+threshold, and a guard built on that count would send an empty page to the
+model.
+
+So the guard measures the student's **contribution** — the page text with every
+line that also appears in the question paper removed, matched on collapsed
+whitespace and lowercased. On the blank fixture that leaves exactly zero
+characters. The character threshold stays as a backstop for a sheet with a
+stray word or two on it, rather than being the primary signal.
+
+Matching whole lines against the question paper rather than a heading pattern
+means the guard works on any answer sheet built from the provided paper, not
+only on our fixture.
+
+### The two cases
+
+A sheet with almost no contributed text and **no images** is blank. It returns a
+zero result immediately, with confidence 1 — an empty page is not an ambiguous
+one, and saying "we are unsure" about it would be false — and no review flag.
+The provider is never called, which a test enforces with a provider that throws
+if it is reached.
+
+A sheet with almost no contributed text but **images present** is unclear, not
+blank: the answer is probably handwritten. It is graded normally, but overall
+confidence is capped at 0.5 and the result is flagged for review with a reason
+naming the actual cause — how many characters were found, how many page images
+there are, and that the marking may rest on the images alone. That reason is
+listed before the generic threshold message, because it says why rather than
+what.
+
+### The blank result is not a special shape
+
+The zero result is built as a `GradeResponse` in exactly the shape a model would
+have returned, and then run through `enforce()` like any other response. It gets
+the same 15 criteria in the same order, the same recomputed total, and the same
+invariants.
+
+This costs a few lines and buys the guarantee that there is only one result
+shape in the system. A blank answer that took a shortcut around enforcement
+would eventually reach persistence, or the annotation layer, or the exporter,
+carrying a subtly different object — and it would fail there rather than here.
+A test asserts the blank and marked results have identical key sets, at the
+result level and per criterion.

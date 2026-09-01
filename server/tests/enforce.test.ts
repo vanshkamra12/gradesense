@@ -60,13 +60,20 @@ describe("enforce", () => {
       expect(result.adjustments).toContain("Q2.C2: awarded -3, below zero — clamped to 0.");
     });
 
-    it("rounds a fractional award to a whole mark", () => {
+    // The prompt says a half-met criterion scores 0. Rounding 0.5 up here would
+    // contradict the rule the model was told to mark under.
+    it("floors a fractional award rather than rounding it up", () => {
       const result = run(fullResponse({ criterionId: "Q3.C5", awarded: 0.5 }));
 
-      expect(Number.isInteger(result.criteria.find((c) => c.criterionId === "Q3.C5")!.awarded)).toBe(true);
+      expect(result.criteria.find((c) => c.criterionId === "Q3.C5")!.awarded).toBe(0);
       expect(result.adjustments).toContain(
-        "Q3.C5: awarded 0.5, which is not a whole mark — rounded to 1.",
+        "Q3.C5: awarded 0.5, which is not a whole mark — floored to 0, since a criterion that is only partly met earns nothing.",
       );
+    });
+
+    it("floors a fraction that is nearly the full mark", () => {
+      const result = run(fullResponse({ criterionId: "Q3.C5", awarded: 0.9 }));
+      expect(result.criteria.find((c) => c.criterionId === "Q3.C5")!.awarded).toBe(0);
     });
 
     it("recomputes the total as the sum of clamped awards", () => {
@@ -196,6 +203,7 @@ describe("enforce", () => {
       const criterion = result.criteria.find((c) => c.criterionId === "Q3.C4")!;
 
       expect(criterion.adjusted).toBe(false);
+      expect(criterion.evidenceVerified).toBe(false);
       expect(result.adjustments.some((a) => a.startsWith("Q3.C4"))).toBe(false);
     });
 

@@ -25,8 +25,21 @@ export type EnforcedCriterion = {
   reasoning: string;
   /** True when enforcement changed this criterion in any way. */
   adjusted: boolean;
-  /** True when the quote was found in the student's text. False when absent. */
+  /**
+   * True only when this criterion carries a quote that was found in the
+   * student's text. False when there is no quote at all — a missing finding or
+   * a finding about a diagram — and false when the quote was unverifiable.
+   */
   evidenceVerified: boolean;
+};
+
+/**
+ * A limit imposed by something enforcement cannot see in the response itself —
+ * currently only that too little text was extracted to trust the marking.
+ */
+export type Caveat = {
+  confidenceCeiling: number;
+  reason: string;
 };
 
 export type EnforcedResult = {
@@ -59,8 +72,9 @@ export function enforce(input: {
   rubric: Rubric;
   studentText: string;
   repaired: boolean;
+  caveat?: Caveat;
 }): EnforcedResult {
-  const { response, rubric, studentText, repaired } = input;
+  const { response, rubric, studentText, repaired, caveat } = input;
 
   // Kept in three groups so the audit trail reads in marking-scheme order,
   // then what was thrown away, then what applies to the response as a whole.
@@ -122,7 +136,7 @@ export function enforce(input: {
     let awarded = result.awarded;
     let evidence = result.evidence;
     let confidence = result.confidence;
-    let evidenceVerified = true;
+    let evidenceVerified = false;
 
     if (result.maxMarks !== criterion.maxMarks) {
       criterionAdjustments.push(
@@ -131,12 +145,15 @@ export function enforce(input: {
       adjusted = true;
     }
 
+    // Floored, not rounded. The prompt tells the model a criterion that is only
+    // half met scores 0, so rounding 0.5 up here would contradict the rule the
+    // model was marking under.
     if (!Number.isInteger(awarded)) {
-      const rounded = Math.round(awarded);
+      const floored = Math.floor(awarded);
       criterionAdjustments.push(
-        `${criterion.id}: awarded ${awarded}, which is not a whole mark — rounded to ${rounded}.`,
+        `${criterion.id}: awarded ${awarded}, which is not a whole mark — floored to ${floored}, since a criterion that is only partly met earns nothing.`,
       );
-      awarded = rounded;
+      awarded = floored;
       adjusted = true;
     }
 
@@ -152,22 +169,21 @@ export function enforce(input: {
       adjusted = true;
     }
 
-    // A quote the model invented cannot be shown to the student as evidence,
-    // and cannot be located on the page. Strip it rather than keep it.
-    if (result.findingType !== "missing" && evidence !== null) {
-      if (!haystack.includes(normaliseForMatch(evidence))) {
+    // A quote with no counterpart in the answer cannot be shown to the student
+    // as evidence, and cannot be located on the page. A finding with no quote at
+    // all is allowed — a missing point, or something only the diagram shows.
+    if (evidence !== null) {
+      if (haystack.includes(normaliseForMatch(evidence))) {
+        evidenceVerified = true;
+      } else {
         const lowered = Math.min(confidence, UNVERIFIED_EVIDENCE_CONFIDENCE);
         criterionAdjustments.push(
           `${criterion.id}: the quoted evidence does not appear anywhere in the student's answer — the quote was removed as unverifiable and confidence lowered from ${round(confidence)} to ${round(lowered)}.`,
         );
         evidence = null;
         confidence = lowered;
-        evidenceVerified = false;
         adjusted = true;
       }
-    } else if (result.findingType !== "missing" && evidence === null) {
-      // Allowed: a finding about a diagram has no text to quote.
-      evidenceVerified = false;
     }
 
     return {
@@ -209,7 +225,7 @@ export function enforce(input: {
 
   const confidence = round(
     Math.min(
-      1,
+      caveat?.confidenceCeiling ?? 1,
       Math.max(
         0,
         meanConfidence -
@@ -219,6 +235,10 @@ export function enforce(input: {
     ),
   );
 
+  // First, because it names the actual cause rather than the symptom.
+  if (caveat) {
+    reviewReasons.push(caveat.reason);
+  }
   if (adjustedCriteria.length > 0) {
     reviewReasons.push(
       `${adjustedCriteria.length} of ${criteria.length} criteria had to be corrected after marking: ${adjustedCriteria
