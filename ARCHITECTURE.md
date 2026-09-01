@@ -801,3 +801,46 @@ with a clean error.
 
 That covers everything about this integration except the model's own answers.
 Grading quality is a different question, and only the real API can answer it.
+
+## The test suite
+
+The suite is in two parts, kept apart deliberately.
+
+**`tests/required-cases.test.ts`** covers the eight cases the spec names, all
+offline against the mock: a fully correct answer, Script A, an incorrect answer,
+a blank answer, OCR-like spelling errors, malformed output, an API failure, and
+a score above the maximum. Every one of these verifies the *pipeline*. Where a
+case looks like an accuracy check, the assertion is about what the system does
+with an answer, not about whether the answer was right — the answers come from
+a mock, so a test asserting Q1.C2 scores zero is asserting that the mock returns
+what the mock was told to return.
+
+**`tests/script-a-accuracy.test.ts`** is the only test that says anything about
+grading quality. It grades Script A with the real provider and checks the error
+key: the six criteria the key calls unambiguous must each score 0, the Q2
+criteria must each score 1 (a grader marking by similarity to the model answer
+fails there), and the total must land in 8-10. It skips when there is no live
+provider rather than falling back to the mock, because a suite that appeared to
+prove accuracy offline would be lying.
+
+It does not assert Q1.C5. The error key names that criterion as genuinely
+arguable, and it varies between runs; pinning it would turn the test into a
+record of one run rather than a check on marking.
+
+`tests/setup.ts` loads `server/.env` for the test process. Without it the live
+test could never see the API key and would silently skip — reporting a pass
+while proving nothing, which is exactly the failure this split exists to avoid.
+Anything set on the command line still wins, so the offline suite stays offline.
+
+### One matcher for verification and location
+
+Writing the OCR case exposed a real bug. `enforce` verified a quote by exact
+containment after normalising whitespace and case, while `locate` could match
+fuzzily. So a quote whose spelling the model had tidied was stripped as
+unverifiable *before* the fuzzy matcher ever saw it — meaning fuzzy matching
+could never run for the one case it exists for.
+
+Both now use `quoteMatchScore`, exported from `locate.ts`: a quote is real if
+the locator could find it. Verifying with a stricter matcher than the one used
+to place the quote is a contradiction, and the test that caught it is the case
+the spec asked for.

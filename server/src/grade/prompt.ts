@@ -192,10 +192,23 @@ nothing more. Use null when there is no quote.
 Give each criterion a "confidence" between 0 and 1, and one line of "reasoning"
 saying why you marked it as you did.
 
+Choose the value from what is observably true of the answer, not from how sure
+you feel:
+
+  0.9 to 1.0   the criterion is plainly met or plainly not met, and you would
+               expect any examiner to agree
+  0.6 to 0.8   a reasonable examiner could mark this the other way, or the
+               answer is partly right in a way that makes either verdict
+               defensible
+  below 0.6    you are unsure what the student meant, or the evidence is a
+               diagram you cannot read confidently
+
+Before setting a confidence above 0.9, ask whether a second examiner reading
+the same criterion and the same answer could reasonably disagree with you. If
+they could, it is not above 0.9.
+
 Low confidence on a genuinely arguable criterion is the correct answer, not a
-failure. Some criteria are legitimately debatable, and some answers are half
-right in a way that makes either verdict defensible. Say so with a low
-confidence value. Honest uncertainty is more useful than false precision, and
+failure. Honest uncertainty is more useful than false precision, and
 low-confidence results are routed to a human for review.
 
 ## OUTPUT

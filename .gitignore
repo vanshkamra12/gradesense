@@ -11,6 +11,5 @@ server/data/
 *.sqlite
 *.sqlite-journal
 
-test-output.txt
 .DS_Store
 *.log

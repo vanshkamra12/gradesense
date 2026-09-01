@@ -1,3 +1,4 @@
+import { quoteMatchScore, FUZZY_THRESHOLD } from "../annotate/locate.js";
 import type { Rubric } from "./rubric.js";
 import type { CriterionResult, GradeResponse } from "./schema.js";
 
@@ -88,8 +89,6 @@ export function enforce(input: {
   const discardAdjustments: string[] = [];
   const responseAdjustments: string[] = [];
   const reviewReasons: string[] = [];
-  const haystack = normaliseForMatch(studentText);
-
   // Index the model's results, keeping the first of any duplicates.
   const returned = new Map<string, CriterionResult>();
   for (const result of response.criteria) {
@@ -179,7 +178,9 @@ export function enforce(input: {
     // as evidence, and cannot be located on the page. A finding with no quote at
     // all is allowed — a missing point, or something only the diagram shows.
     if (evidence !== null) {
-      if (haystack.includes(normaliseForMatch(evidence))) {
+      // The same matcher that places the quote on the page decides whether it
+      // is real. A quote the locator could find is not a hallucination.
+      if (quoteMatchScore(studentText, evidence) >= FUZZY_THRESHOLD) {
         evidenceStatus = "verified";
       } else {
         const lowered = Math.min(confidence, UNVERIFIED_EVIDENCE_CONFIDENCE);

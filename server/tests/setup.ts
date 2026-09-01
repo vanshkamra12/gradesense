@@ -1,8 +1,31 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "gradesense-test-"));
 
 process.env.DB_PATH = path.join(root, "data", "test.sqlite");
 process.env.STORAGE_DIR = path.join(root, "storage");
+
+/**
+ * vitest does not read server/.env the way the CLI scripts do, so without this
+ * the live accuracy test could never see GEMINI_API_KEY and would silently skip
+ * — reporting a pass while proving nothing, which is the failure mode the
+ * separation of these tests exists to avoid.
+ *
+ * Anything already set on the command line wins, so `GRADE_PROVIDER=mock` still
+ * forces the offline path.
+ */
+const envFile = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.env");
+
+if (fs.existsSync(envFile)) {
+  for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
+    const match = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
+    if (!match) continue;
+
+    const [, key, rawValue] = match;
+    if (process.env[key!] !== undefined) continue;
+    process.env[key!] = rawValue!.replace(/^["']|["']$/g, "");
+  }
+}

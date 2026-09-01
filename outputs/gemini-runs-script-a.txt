@@ -1,0 +1,119 @@
+GradeSense — Script A graded by the real provider, three runs
+Generated: 2026-09-01 07:22 UTC
+Command: GRADE_PROVIDER=gemini npm run compare --workspace server -- 3
+
+Compared against fixtures/error_key_script_a.md, which expects 9/15.
+The six the key calls unambiguous must all score 0.
+
+
+
+
+====================================================================================================
+RUN 1 of 3   provider gemini:gemini-3.6-flash   49.6s
+====================================================================================================
+
+criterion  mark  key  findingType  conf   evidence
+----------------------------------------------------------------------------------------------------
+Q1.C1        1     1    correct     0.95   "In my diagram the battery, switch, resistor, bulb and the amether are all joined one after anoth"
+Q1.C2        0     0    incorrect   0.98   "The voltmetre is also connected in series in the same loop so that it can measure the voltage of"
+Q1.C3        1     1    correct     0.95   "The battery is the source of energy and it provides the potential difference which pushes the cu"
+Q1.C4        0     0    incorrect   0.98   "If we increase the resistence in the circuit then more current will flow through the bulb, becau"
+Q1.C5        0     1  ! partial     0.90   "So a higher resistence will give a brighter bulb."
+Q2.C1        0     1  ! partial     0.85   "In my view technology has made students more dependent on easy answers rather than making them b"
+Q2.C2        1     1    correct     0.95   "Earlier a student had to sit with a problem and think about it for a long time, but now the answ"
+Q2.C3        1     1    correct     0.95   "It is true that technology also give many benefits. A student who does not understand a topic in"
+Q2.C4        1     1    correct     0.95   "For example, in my own class many students directly search the solution of maths sums online and"
+Q2.C5        0     0    incorrect   0.95   "But overall I feel technology is making learning much better for students today and every studen"
+Q3.C1        1     1    correct     0.95   "(a) The demand and supply graph is drawn below. Price is taken on the vertical axis and quantity"
+Q3.C2        0     0    incorrect   0.95   "From the table and from my graph the equilibrum of the market comes at the price of ₹40 and the "
+Q3.C3        0     0    incorrect   0.98   "When the market price is below the equilibrum price, the quantity supplied becomes more than the"
+Q3.C4        1     1    correct     0.95   "So they will supply less at every price and the supply curve will shift towards the left side. I"
+Q3.C5        0     0    incorrect   0.95   "After this shift the new equilibrum will come at a lower price and a lower quantity than before."
+----------------------------------------------------------------------------------------------------
+total 7/15 (key says 9)   confidence 0.95   review false   repaired false
+evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
+
+disagreements with the error key: 2
+  Q1.C5: gave 0, key says 1 — The explanation lacks logical scientific structure due to flawed physical reasoning about resistance and incorrect voltmeter placement.
+  Q2.C1: gave 0, key says 1 — The student presents contradictory positions in the introduction and conclusion.
+UNAMBIGUOUS CRITERIA WRONG: Q2.C1
+
+====================================================================================================
+RUN 2 of 3   provider gemini:gemini-3.6-flash   40.7s
+====================================================================================================
+
+criterion  mark  key  findingType  conf   evidence
+----------------------------------------------------------------------------------------------------
+Q1.C1        1     1    correct     0.95   "In my diagram the battery, switch, resistor, bulb and the amether are all joined one after anoth"
+Q1.C2        0     0    incorrect   1.00   "The voltmetre is also connected in series in the same loop so that it can measure the voltage of"
+Q1.C3        1     1    correct     0.95   "The battery is the source of energy and it provides the potential difference which pushes the cu"
+Q1.C4        0     0    incorrect   1.00   "If we increase the resistence in the circuit then more current will flow through the bulb, becau"
+Q1.C5        0     1  ! partial     0.90   "So a higher resistence will give a brighter bulb."
+Q2.C1        1     1    correct     1.00   "In my view technology has made students more dependent on easy answers rather than making them b"
+Q2.C2        1     1    correct     0.95   "Because of this the habit of struggling with a question is slowly finishing."
+Q2.C3        1     1    correct     1.00   "It is true that technology also give many benefits."
+Q2.C4        1     1    correct     0.95   "For example, in my own class many students directly search the solution of maths sums online and"
+Q2.C5        0     0    incorrect   0.95   "But overall I feel technology is making learning much better for students today and every studen"
+Q3.C1        1     1    correct     0.95   "Price is taken on the vertical axis and quantity is taken on the horizontal axis."
+Q3.C2        0     0    incorrect   1.00   "equilibrum of the market comes at the price of ₹40 and the quantity of 40 units, because this is"
+Q3.C3        0     0    incorrect   1.00   "When the market price is below the equilibrum price, the quantity supplied becomes more than the"
+Q3.C4        1     1    correct     0.95   "So they will supply less at every price and the supply curve will shift towards the left side."
+Q3.C5        0     0    incorrect   1.00   "After this shift the new equilibrum will come at a lower price and a lower quantity than before."
+----------------------------------------------------------------------------------------------------
+total 8/15 (key says 9)   confidence 0.97   review false   repaired false
+evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
+
+disagreements with the error key: 1
+  Q1.C5: gave 0, key says 1 — The diagram has labels and direction arrows, but the scientific explanation contains contradictory and illogical conclusions.
+all six unambiguous criteria agree with the key
+
+====================================================================================================
+RUN 3 of 3   provider gemini:gemini-3.6-flash   71.0s
+====================================================================================================
+
+criterion  mark  key  findingType  conf   evidence
+----------------------------------------------------------------------------------------------------
+Q1.C1        1     1    correct     0.95   "In my diagram the battery, switch, resistor, bulb and the amether are all joined one after anoth"
+Q1.C2        0     0    incorrect   0.95   "The voltmetre is also connected in series in the same loop so that it can measure the voltage of"
+Q1.C3        1     1    correct     0.95   "The battery is the source of energy and it provides the potential difference which pushes the cu"
+Q1.C4        0     0    incorrect   0.95   "If we increase the resistence in the circuit then more current will flow through the bulb, becau"
+Q1.C5        0     1  ! partial     0.75   "The current in the circuit depends on the voltage and the resistence."
+Q2.C1        1     1    correct     0.95   "In my view technology has made students more dependent on easy answers rather than making them b"
+Q2.C2        1     1    correct     0.95   "Because of this the habit of struggling with a question is slowly finishing."
+Q2.C3        1     1    correct     0.95   "It is true that technology also give many benefits."
+Q2.C4        1     1    correct     0.95   "For example, in my own class many students directly search the solution of maths sums online and"
+Q2.C5        0     0    incorrect   0.95   "But overall I feel technology is making learning much better for students today and every studen"
+Q3.C1        1     1    correct     0.95   "Price is taken on the vertical axis and quantity is taken on the horizontal axis."
+Q3.C2        0     0    incorrect   0.95   "From the table and from my graph the equilibrum of the market comes at the price of ₹40 and the "
+Q3.C3        0     0    incorrect   0.95   "When the market price is below the equilibrum price, the quantity supplied becomes more than the"
+Q3.C4        1     1    correct     0.95   "If the cost of production of the product increases then the producers will not find it profitabl"
+Q3.C5        0     0    incorrect   0.95   "After this shift the new equilibrum will come at a lower price and a lower quantity than before."
+----------------------------------------------------------------------------------------------------
+total 8/15 (key says 9)   confidence 0.94   review false   repaired false
+evidence: 15 located, 0 stripped as unverifiable, 0 offered no quote
+
+disagreements with the error key: 1
+  Q1.C5: gave 0, key says 1 — The student presents labels and arrows, but the logical structure of the explanation is compromised by incorrect scientific reasoning and incorrect meter placement.
+all six unambiguous criteria agree with the key
+
+====================================================================================================
+VARIATION ACROSS 3 RUNS
+====================================================================================================
+totals: 7, 8, 8   (key says 9, acceptable band 8-10)
+
+criterion  key  run1  run2  run3   stable
+Q1.C1        1     1     1     1   yes
+Q1.C2        0     0     0     0   yes
+Q1.C3        1     1     1     1   yes
+Q1.C4        0     0     0     0   yes
+Q1.C5        1     0     0     0   yes
+Q2.C1        1     0     1     1   NO
+Q2.C2        1     1     1     1   yes
+Q2.C3        1     1     1     1   yes
+Q2.C4        1     1     1     1   yes
+Q2.C5        0     0     0     0   yes
+Q3.C1        1     1     1     1   yes
+Q3.C2        0     0     0     0   yes
+Q3.C3        0     0     0     0   yes
+Q3.C4        1     1     1     1   yes
+Q3.C5        0     0     0     0   yes

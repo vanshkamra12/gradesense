@@ -115,7 +115,7 @@ function exactMatches(page: ExtractedPage, haystack: Normalised, needle: string)
  * This finds the true best window, unlike a stepped sliding window, and costs
  * one distance computation over the page rather than one per candidate offset.
  */
-function bestFuzzyMatch(page: ExtractedPage, haystack: string, needle: string): Match | null {
+function sellers(haystack: string, needle: string): { start: number; end: number; score: number } | null {
   const n = haystack.length;
   const m = needle.length;
   if (m === 0 || n === 0) return null;
@@ -164,7 +164,31 @@ function bestFuzzyMatch(page: ExtractedPage, haystack: string, needle: string): 
   const score = 1 - bestDistance / m;
   if (score <= 0) return null;
 
-  return { page: page.page, start: previousStart[bestEnd]!, end: bestEnd, score };
+  return { start: previousStart[bestEnd]!, end: bestEnd, score };
+}
+
+function bestFuzzyMatch(page: ExtractedPage, haystack: string, needle: string): Match | null {
+  const found = sellers(haystack, needle);
+  return found === null ? null : { page: page.page, ...found };
+}
+
+/**
+ * How well a quote matches some text: 1 for an exact match after normalisation,
+ * the similarity ratio for the best approximate one, 0 for nothing.
+ *
+ * `enforce` uses this to decide whether a quote is real, and it has to be the
+ * same matcher used to place the quote on the page. Verifying with exact
+ * matching while locating with fuzzy matching would strip every quote whose
+ * spelling the model tidied — which is precisely the case fuzzy matching exists
+ * for, so it would never run.
+ */
+export function quoteMatchScore(text: string, quote: string): number {
+  const haystack = normalise(text).text;
+  const needle = normalise(quote).text;
+  if (haystack === "" || needle === "") return 0;
+  if (haystack.includes(needle)) return 1;
+
+  return sellers(haystack, needle)?.score ?? 0;
 }
 
 /**
