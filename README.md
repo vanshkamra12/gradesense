@@ -67,6 +67,13 @@ The provider retries once on 408/429/500/502/503/504 and network faults, and
 fails immediately on 400/401/403/404, since retrying a refusal only hides the
 cause.
 
+The free tier allows **20 requests per model per day**
+(`GenerateRequestsPerDayPerProjectPerModel-FreeTier`), counted separately for
+each model. Exhausting one model does not affect another, so switching
+`GEMINI_MODEL` gives a fresh allowance. A 429 quoting that quota id is a daily
+cap and waiting will not clear it; a 429 quoting a per-minute quota will clear
+in about a minute.
+
 ### Grading a script and comparing it to the error key
 
 ```bash
@@ -100,6 +107,11 @@ All read in one place, `server/src/config.ts`. `.env` is gitignored;
 npm test                                            # offline, mock, no key
 GRADE_PROVIDER=gemini npm test --workspace server   # adds the live accuracy check
 ```
+
+A bare `npm test` stays offline even when `server/.env` sets
+`GRADE_PROVIDER=gemini`. Going live has to be asked for on the command line, so
+local configuration cannot quietly turn the offline suite into one that spends
+API quota.
 
 The suite is in two parts, on purpose:
 

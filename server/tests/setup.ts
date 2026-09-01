@@ -19,6 +19,12 @@ process.env.STORAGE_DIR = path.join(root, "storage");
  */
 const envFile = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.env");
 
+// Whether the live provider was asked for on the command line, before .env is
+// read. A developer who has GRADE_PROVIDER=gemini in .env for day-to-day use
+// must still get an offline run from a bare `npm test`; going live has to be a
+// deliberate act, not a side effect of local configuration.
+const askedForLiveProvider = process.env.GRADE_PROVIDER !== undefined;
+
 if (fs.existsSync(envFile)) {
   for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
     const match = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
@@ -28,4 +34,8 @@ if (fs.existsSync(envFile)) {
     if (process.env[key!] !== undefined) continue;
     process.env[key!] = rawValue!.replace(/^["']|["']$/g, "");
   }
+}
+
+if (!askedForLiveProvider) {
+  process.env.GRADE_PROVIDER = "mock";
 }
