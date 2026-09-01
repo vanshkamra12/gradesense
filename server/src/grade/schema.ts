@@ -18,6 +18,10 @@ export const CriterionResult = z.object({
 export const GradeResponse = z.object({
   criteria: z.array(CriterionResult),
   overallNotes: z.string().optional(),
+  // The prompt forbids a total. These are accepted only so enforcement can
+  // report having ignored one, rather than zod silently dropping the field.
+  total: z.number().optional(),
+  maxTotal: z.number().optional(),
 });
 
 export type CriterionResult = z.infer<typeof CriterionResult>;

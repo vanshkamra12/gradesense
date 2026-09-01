@@ -121,6 +121,27 @@ describe("prompt", () => {
     expect(instructions).not.toMatch(/Q\d\.C\d/);
   });
 
+  it("defines partial as scoring zero, so the model does not invent a fraction", () => {
+    expect(says(prompt, "partial the student attempted the point and did not meet it")).toBe(true);
+    expect(says(prompt, '"partial" scores 0, exactly as "incorrect" does')).toBe(true);
+    expect(says(prompt, "The difference is for the feedback the student reads, not for the mark")).toBe(true);
+    expect(says(prompt, "never a fraction of a mark")).toBe(true);
+  });
+
+  it("scopes the guidance override to the criteria it speaks about", () => {
+    expect(says(prompt, "authoritative for the criteria it speaks about")).toBe(true);
+    expect(
+      says(prompt, "apply it to the criterion that error belongs to, and not to the whole question"),
+    ).toBe(true);
+    expect(prompt).not.toContain("overrides your own judgement wherever the two differ");
+  });
+
+  it("tells the model to fail loudly when the page images are absent", () => {
+    expect(says(prompt, "If no page images actually reach you, do not carry on as though they had")).toBe(true);
+    expect(says(prompt, 'mark those criteria as "missing" with a low confidence')).toBe(true);
+    expect(says(prompt, "do not infer what a diagram shows from the written text alone")).toBe(true);
+  });
+
   it("says spelling and grammar cost no marks on their own", () => {
     expect(says(prompt, "must not by themselves cost a criterion mark")).toBe(true);
     expect(says(prompt, "Misspelling a technical term is not the same as misunderstanding it")).toBe(true);

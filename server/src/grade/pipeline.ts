@@ -1,5 +1,6 @@
 import { extractPdf, type ExtractedDocument } from "../pdf/extract.js";
 import { renderPdfPages, type RenderedPage } from "../pdf/render.js";
+import { enforce, type EnforcedResult } from "./enforce.js";
 import { buildPromptParts } from "./prompt.js";
 import type { GradeProvider, PromptPart } from "./provider.js";
 import { loadRubric, type Rubric } from "./rubric.js";
@@ -16,6 +17,8 @@ export type GradeError = {
 
 export type GradeRun = {
   response: GradeResponse;
+  /** The response after the hard rules are applied. This is what callers use. */
+  result: EnforcedResult;
   rubric: Rubric;
   student: ExtractedDocument;
   pages: RenderedPage[];
@@ -66,7 +69,11 @@ export async function gradeDocument(
   if (first.ok) {
     return {
       ok: true,
-      run: { response: first.value, rubric, student, pages, parts, provider: provider.name, repaired: false },
+      run: {
+        response: first.value,
+        result: enforce({ response: first.value, rubric, studentText: student.text, repaired: false }),
+        rubric, student, pages, parts, provider: provider.name, repaired: false,
+      },
     };
   }
 
@@ -91,7 +98,11 @@ export async function gradeDocument(
   if (second.ok) {
     return {
       ok: true,
-      run: { response: second.value, rubric, student, pages, parts, provider: provider.name, repaired: true },
+      run: {
+        response: second.value,
+        result: enforce({ response: second.value, rubric, studentText: student.text, repaired: true }),
+        rubric, student, pages, parts, provider: provider.name, repaired: true,
+      },
     };
   }
 

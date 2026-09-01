@@ -175,7 +175,8 @@ const SCRIPT_A: Record<string, MockCriterion> = {
   },
   "Q3.C5": {
     awarded: 0,
-    findingType: "incorrect",
+    // Right about quantity, wrong about price: attempted, not met. Still 0.
+    findingType: "partial",
     anchor: "come at a lower price and a lower quantity",
     feedback:
       "Half correct. Quantity does fall, but a leftward supply shift with demand unchanged raises the equilibrium price.",

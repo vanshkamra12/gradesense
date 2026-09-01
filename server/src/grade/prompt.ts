@@ -20,8 +20,10 @@ function markingScheme(rubric: Rubric): string {
           : [
               "",
               `AUTHORITATIVE MARKING INSTRUCTIONS FOR ${question.id}`,
-              "The following is quoted verbatim from the marking scheme. It overrides",
-              "your own judgement wherever the two differ.",
+              "The following is quoted verbatim from the marking scheme. It is",
+              "authoritative for the criteria it speaks about. Where an instruction",
+              "names a specific error, apply it to the criterion that error belongs",
+              "to, and not to the whole question.",
               "",
               ...question.guidance.map((line) => `  ${line}`),
             ].join("\n");
@@ -66,6 +68,20 @@ strong. Mark each one as if it were the only thing you were looking at.
 Each criterion is worth the number of marks shown in brackets, and resolves to a
 whole number. Award the full mark when the criterion is met and 0 when it is
 not. A criterion that is only half met scores 0 — there are no fractional marks.
+
+Use "findingType" to record what kind of answer it was, not how much credit it
+earned:
+
+  correct    the criterion is met, and the mark is awarded
+  incorrect  the student made the point and got it wrong
+  partial    the student attempted the point and did not meet it, or met part
+             of a criterion that requires the whole thing
+  missing    the student did not address the point at all
+
+"partial" scores 0, exactly as "incorrect" does. The difference is for the
+feedback the student reads, not for the mark. When half of what a criterion asks
+for is right and half is wrong, that is "partial" with 0 awarded — never a
+fraction of a mark, and never rounded up because most of it was right.
 
 Do not calculate, estimate or reason about a total or a percentage. You are not
 given one and you must not return one. Totals are computed outside this task.
@@ -130,7 +146,12 @@ ${studentText(student)}
 
 The ${pageCount} page image${pageCount === 1 ? "" : "s"} below ${pageCount === 1 ? "is" : "are"} in page order. Use them to read the
 hand-drawn diagrams, and to see anything the extracted text cannot show,
-including struck-out spans.`;
+including struck-out spans.
+
+If no page images actually reach you, do not carry on as though they had. Say so
+in your feedback for every criterion that depends on a diagram, mark those
+criteria as "missing" with a low confidence, and do not infer what a diagram
+shows from the written text alone.`;
 }
 
 function outputContract(criterionCount: number): string {

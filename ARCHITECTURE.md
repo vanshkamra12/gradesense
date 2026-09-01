@@ -300,3 +300,67 @@ was unusable, and then fails with a structured error carrying every raw attempt.
 
 A failed run returns `{ ok: false, error }` and never a partial result. There is
 no path that returns some criteria and an error.
+
+## Enforcement
+
+`enforce.ts` runs after validation and holds the rules that must be true
+regardless of what the model said. It takes the validated response, the rubric
+and the student's extracted text, and returns the result the rest of the system
+uses. Nothing downstream reads the raw model response.
+
+It iterates the **rubric**, not the model's array. That single choice is what
+makes the criterion set correct by construction: a criterion the model omitted
+gets filled in because the loop reaches it anyway, a criterion the model invented
+is never reached, and the output is always the 15 criteria in marking-scheme
+order however the model ordered them.
+
+Marks are rounded to a whole number, then clamped into `[0, maxMarks]`, with the
+maximum taken from the marking scheme rather than from the model. The total is
+recomputed as the sum of the clamped awards. The schema accepts an optional
+`total` from the model, not because it is used, but so that enforcement can
+report having ignored it instead of zod silently dropping the field.
+
+Evidence is verified by normalising whitespace and case and checking the quote
+occurs in the extracted text. Whitespace and case are the only differences a
+faithful quote can legitimately have, because the extracted text carries the
+PDF's hard wrapping. Anything else means the quote was not copied from the
+answer, so it is removed, the criterion's confidence is capped at 0.2, and the
+criterion is flagged. A `missing` finding with no quote is left alone, and so is
+a finding about a diagram, which has no text to quote.
+
+### The adjustments array
+
+`adjustments` is the audit trail, and it is written for a teacher rather than
+for a log. Every line names the criterion and says what changed:
+
+    Q1.C1: awarded 2 of a maximum 1 — clamped to 1.
+    Q2.C3: the model returned no result for this criterion — recorded as 0 of 1,
+           missing, with no confidence.
+    Q1.C2: the quoted evidence does not appear anywhere in the student's answer
+           — the quote was removed as unverifiable and confidence lowered from
+           0.95 to 0.2.
+    Q4.C1: not a criterion in the marking scheme — the model's result for it was
+           discarded.
+    The model returned a total of 99. Totals are never taken from the model —
+    recomputed from the criterion marks as 8 of 15.
+
+Different failures read differently on purpose. A criterion the model never
+answered and a criterion whose quote it invented are not the same event: the
+first is silence, the second is a false statement, and a teacher deciding
+whether to trust the mark needs to tell them apart at a glance. A test asserts
+the two lines are not identical.
+
+The lines are grouped so the trail reads in marking-scheme order first, then
+what was discarded, then what applies to the response as a whole.
+
+### Confidence and the review flag
+
+Overall confidence is the mean of the per-criterion values, less 0.05 for each
+criterion that had to be adjusted and 0.1 if the response needed repairing.
+`needsHumanReview` is set when confidence falls below 0.7, when any criterion
+was adjusted, or when the response was repaired — and `reviewReasons` says which
+of those it was, in the same plain language as the adjustments.
+
+A high-confidence result with one clamped criterion still goes to review. The
+model being sure of itself is not evidence about the thing that had to be
+corrected.
