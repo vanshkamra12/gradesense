@@ -30,6 +30,24 @@ npm run dev:web                 # http://localhost:5173
 The web dev server proxies `/api` to the backend, so the frontend needs no base
 URL.
 
+## Using the real model
+
+```bash
+# server/.env
+GRADE_PROVIDER=gemini
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-3.7-flash   # whichever model your key can reach
+```
+
+Model availability varies by project and billing tier. If a call fails with 403
+or 404 the model is not enabled for your key, and 429 with `limit: 0` means the
+free tier grants no quota for it — neither is a bug in this code, and the
+provider reports them without retrying pointlessly.
+
+`npm run compare --workspace server` grades Script A with the configured
+provider and prints the result beside `fixtures/error_key_script_a.md`. Pass a
+number to repeat it and see how much the marking varies between runs.
+
 ## Other scripts
 
 ```bash

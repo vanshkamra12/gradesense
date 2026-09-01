@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "../config.js";
+import { geminiProvider } from "./gemini.js";
 import { extractPdf, type ExtractedDocument } from "../pdf/extract.js";
 import { loadRubric } from "./rubric.js";
 
@@ -387,5 +388,9 @@ export function createProvider(): GradeProvider {
     return mockProvider(mode);
   }
 
-  throw new Error(`GRADE_PROVIDER must be "mock" (got ${JSON.stringify(name)})`);
+  // geminiProvider() throws only when called without a key, so importing it
+  // costs the test suite nothing and needs no API key to load.
+  if (name === "gemini") return geminiProvider();
+
+  throw new Error(`GRADE_PROVIDER must be "mock" or "gemini" (got ${JSON.stringify(name)})`);
 }

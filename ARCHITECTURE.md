@@ -762,3 +762,42 @@ gets submitted as an example of a marked paper.
 `outputs/annotated_student_answer_A.pdf`. It is a script rather than a one-off
 so the committed file can be regenerated instead of being an artefact nobody can
 rebuild.
+
+## The Gemini provider
+
+`grade/gemini.ts` implements the same `GradeProvider` interface as the mock, and
+nothing else in the system knows which one it has. `createProvider()` picks by
+`GRADE_PROVIDER`; there is no special-casing anywhere downstream.
+
+Because the prompt is already an ordered `PromptPart[]`, mapping it to Gemini is
+a one-line transformation — text stays text, a PNG becomes `inlineData` base64,
+and the order is preserved. This is the payoff for changing the interface at
+stage 6: had the prompt still been a string with a marker in it, this file would
+have had to parse it back apart.
+
+The request asks for `responseMimeType: "application/json"` on top of the
+prompt's own instruction, and `temperature: 0`, since marking should not wander
+between runs any more than it has to.
+
+### Retrying, and what does not get retried
+
+One retry, and only for a failure worth retrying: 408, 429, 500, 502, 503, 504,
+or a network fault. A 400, 401, 403 or 404 fails immediately — retrying a
+refusal only wastes time and hides the cause. A malformed *answer* is not
+retried here at all; that is the pipeline's repair attempt, which is a different
+thing and belongs at a different level. An empty response is treated as a
+failure rather than as an answer, carrying the finish reason so a truncated
+generation is distinguishable from a refusal.
+
+### Verified without the network
+
+`geminiProvider()` accepts an optional base URL, so the provider can be pointed
+at a local HTTP stub. `tests/gemini.test.ts` runs the real SDK against that stub
+and asserts the request it actually produces: four parts in the order the prompt
+builder set them, images as `inlineData` PNG base64, `responseMimeType` and
+`temperature` as configured. It then drives the retry — a 503 followed by a 200
+succeeds on the second attempt, a 403 is not retried at all, and two 429s fail
+with a clean error.
+
+That covers everything about this integration except the model's own answers.
+Grading quality is a different question, and only the real API can answer it.

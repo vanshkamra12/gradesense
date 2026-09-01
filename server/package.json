@@ -14,9 +14,11 @@
     "print:rubric": "tsx src/grade/rubric-cli.ts",
     "print:prompt": "tsx src/grade/prompt-cli.ts",
     "print:locate": "tsx src/annotate/locate-cli.ts",
-    "export:sample": "tsx --env-file-if-exists=.env src/annotate/export-cli.ts"
+    "export:sample": "tsx --env-file-if-exists=.env src/annotate/export-cli.ts",
+    "compare": "tsx --env-file-if-exists=.env src/grade/compare-cli.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "@napi-rs/canvas": "^1.0.8",
     "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
